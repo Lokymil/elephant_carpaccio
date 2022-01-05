@@ -11,19 +11,19 @@ export const initSocket = (server: Server) => {
   const teams: Team[] = [];
   let lastSentCart: Cart;
 
-  io.of("/scores").on("connection", (socket) => {
-    console.log("a user connected");
-
-    socket.on("disconnect", () => {
-      console.log("user disconnected");
-    });
-  });
-
   io.of("/team").on("connection", (socket) => {
     let team: Team;
 
     socket.on("auth", (teamName) => {
       team = getTeam(teams, teamName);
+    });
+
+    socket.on("invoice", (invoice) => {
+      if (!team) return;
+
+      // TODO validate invoice
+      team.points += 10;
+      socket.emit("invoice", "OK");
     });
 
     socket.on("disconnect", () => {
@@ -32,7 +32,10 @@ export const initSocket = (server: Server) => {
   });
 
   setInterval(() => {
+    // TODO make "generateCart" to return expected result to ease validation
+    // TODO make "generateCart" adapt to difficulty level
     lastSentCart = generateCart();
     io.of("/team").emit("cart", lastSentCart);
+    io.of("/scores").emit("current", teams);
   }, 15000);
 };

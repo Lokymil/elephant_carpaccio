@@ -1,4 +1,4 @@
 export type Team = {
-  points: Number;
+  points: number;
   name: string;
 };

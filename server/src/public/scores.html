@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io("/scores");
+    socket.on("current", (teams) => {
+        console.log(teams)
+    })
+</script>
+
+<body>
+    Scores !
+</body>
+
+</html>
