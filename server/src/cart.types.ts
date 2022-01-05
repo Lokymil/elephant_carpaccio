@@ -4,3 +4,5 @@ export type Cart = {
   country: "FR" | "US" | "UK";
   reduction: "STANDARD";
 };
+
+export type Invoice = string;

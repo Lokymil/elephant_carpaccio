@@ -8,6 +8,7 @@
             console.log(cart)
             socket.emit("invoice", "10 €");
         })
+        socket.on("invoice", (result) => console.log(result))
     </script>
     <body>
         Hello world !

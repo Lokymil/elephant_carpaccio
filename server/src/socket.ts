@@ -1,7 +1,7 @@
 import { Server } from "http";
 import { Server as Socket } from "socket.io";
 import { generateCart } from "./cart";
-import { Cart } from "./cart.types";
+import { Invoice } from "./cart.types";
 import { getTeam } from "./team";
 import { Team } from "./team.types";
 
@@ -9,21 +9,37 @@ export const initSocket = (server: Server) => {
   const io = new Socket(server);
 
   const teams: Team[] = [];
-  let lastSentCart: Cart;
+  let expectedInvoice: Invoice;
+  let currentPrice: number;
+
+  io.of("/scores").on("connection", (socket) => {
+    console.log("Scores connected");
+
+    setInterval(() => socket.emit("current", teams), 5000);
+
+    socket.on("disconnect", () => {
+      console.log("Scores disconnected");
+    });
+  });
 
   io.of("/team").on("connection", (socket) => {
     let team: Team;
 
     socket.on("auth", (teamName) => {
       team = getTeam(teams, teamName);
+      console.log(`${teamName} connected`);
     });
 
     socket.on("invoice", (invoice) => {
       if (!team) return;
 
-      // TODO validate invoice
-      team.points += 10;
-      socket.emit("invoice", "OK");
+      if (invoice === expectedInvoice) {
+        team.points += Math.round(currentPrice);
+        socket.emit("invoice", "OK");
+      } else {
+        team.points -= Math.round(currentPrice / 2);
+        socket.emit("invoice", `KO ${expectedInvoice}`);
+      }
     });
 
     socket.on("disconnect", () => {
@@ -32,10 +48,10 @@ export const initSocket = (server: Server) => {
   });
 
   setInterval(() => {
-    // TODO make "generateCart" to return expected result to ease validation
     // TODO make "generateCart" adapt to difficulty level
-    lastSentCart = generateCart();
-    io.of("/team").emit("cart", lastSentCart);
-    io.of("/scores").emit("current", teams);
+    const { cart, price, invoice } = generateCart();
+    currentPrice = price;
+    expectedInvoice = invoice;
+    io.of("/team").emit("cart", cart);
   }, 15000);
 };
