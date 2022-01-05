@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io("/scores");
+        socket.emit("auth", "scores")
+    </script>
+    <body>
+        Hello world !
+    </body>
+</html>
