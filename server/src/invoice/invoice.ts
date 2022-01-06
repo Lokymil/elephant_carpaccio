@@ -1,4 +1,4 @@
-import { Cart } from "../cart/cart.types";
+import { Cart, Reduction } from "../cart/cart.types";
 import { applyConversion, getCountrySymbol } from "../country/country";
 import { Country } from "../country/country.types";
 
@@ -25,10 +25,10 @@ const getInvoiceGlobalReduction = (
 
   let pricePriorCountryConversion: number;
   switch (cart.reduction) {
-    case "-50%":
+    case Reduction.HALF:
       pricePriorCountryConversion = pricePriorReduction * 0.5;
       break;
-    case "-10%":
+    case Reduction.TENTH:
       pricePriorCountryConversion = pricePriorReduction * 0.9;
       break;
     default:
@@ -97,15 +97,15 @@ const getInvoiceSpecialReduction = (
 
 export const getInvoice = (cart: Cart): { price: number; invoice: string } => {
   switch (cart.reduction) {
-    case "-50% FIRST":
+    case Reduction.HALF_FIRST:
       return getInvoiceFirstReduction(cart);
-    case "-50% LAST":
+    case Reduction.HALF_LAST:
       return getInvoiceLastReduction(cart);
-    case "SPECIAL":
+    case Reduction.SPECIAL:
       return getInvoiceSpecialReduction(cart);
-    case "STANDARD":
-    case "-10%":
-    case "-50%":
+    case Reduction.STANDARD:
+    case Reduction.TENTH:
+    case Reduction.HALF:
     default:
       return getInvoiceGlobalReduction(cart);
   }

@@ -7,10 +7,11 @@ export type Cart = {
   reduction: Reduction;
 };
 
-export type Reduction =
-  | "STANDARD"
-  | "-50%"
-  | "-10%"
-  | "-50% FIRST"
-  | "-50% LAST"
-  | "SPECIAL";
+export enum Reduction {
+  STANDARD = "STANDARD",
+  HALF = "-50%",
+  TENTH = "-10%",
+  HALF_FIRST = "-50% FIRST",
+  HALF_LAST = "-50% LAST",
+  SPECIAL = "SPECIAL",
+}

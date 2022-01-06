@@ -2,6 +2,7 @@ import { Country } from "../country/country.types";
 import { Cart, Reduction } from "./cart.types";
 import { getInvoice } from "../invoice/invoice";
 import { Invoice } from "../invoice/invoice.types";
+import { getOptionsByDifficulty } from "../difficulty/difficulty";
 
 const getRandomFrom1ToX = (upperBound: number): number => {
   const randFrom0ToXMinus1 = Math.random() * (upperBound - 1);
@@ -36,22 +37,19 @@ const generateReduction = (possibleReductions: Reduction[]): Reduction => {
   return possibleReductions[getRandomFrom1ToX(possibleReductions.length) - 1];
 };
 
-export const generateCart = (): {
+export const generateCart = (
+  difficulty: number
+): {
   cart: Cart;
   invoice: Invoice;
   price: number;
 } => {
+  const { possibleNumberOfItems, possibleCountries, possibleReductions } =
+    getOptionsByDifficulty(difficulty);
   const cart: Cart = {
-    ...getPricesAndQuantity([1, 2, 3]),
-    country: generateCountry([Country.FR, Country.UK, Country.US]),
-    reduction: generateReduction([
-      "STANDARD",
-      "-50%",
-      "-10%",
-      "-50% FIRST",
-      "-50% LAST",
-      "SPECIAL",
-    ]),
+    ...getPricesAndQuantity(possibleNumberOfItems),
+    country: generateCountry(possibleCountries),
+    reduction: generateReduction(possibleReductions),
   };
 
   return { cart, ...getInvoice(cart) };

@@ -2,15 +2,17 @@ import { Server } from "http";
 import { Server as Socket } from "socket.io";
 import { generateCart } from "../cart/cart";
 import { Invoice } from "../invoice/invoice.types";
-import { getTeam } from "../team/team";
+import { getTeam, resetValidAnswerStreak } from "../team/team";
 import { Team } from "../team/team.types";
 
 export const initSocket = (server: Server) => {
   const io = new Socket(server);
 
   const teams: Team[] = [];
+  const validAnswerStreakThreshold = 10;
   let expectedInvoice: Invoice;
   let currentPrice: number;
+  let difficulty = 4;
 
   io.of("/scores").on("connection", (socket) => {
     console.log("Scores connected");
@@ -35,10 +37,21 @@ export const initSocket = (server: Server) => {
 
       if (invoice === expectedInvoice) {
         team.points += Math.round(currentPrice);
+        team.validAnswerInARow += 1;
         socket.emit("invoice", "OK");
       } else {
         team.points -= Math.round(currentPrice / 2);
         socket.emit("invoice", `KO ${expectedInvoice}`);
+        team.validAnswerInARow = 0;
+      }
+
+      if (
+        teams.some(
+          (team) => team.validAnswerInARow >= validAnswerStreakThreshold
+        )
+      ) {
+        difficulty++;
+        resetValidAnswerStreak(teams);
       }
     });
 
@@ -48,8 +61,7 @@ export const initSocket = (server: Server) => {
   });
 
   setInterval(() => {
-    // TODO make "generateCart" adapt to difficulty level
-    const { cart, price, invoice } = generateCart();
+    const { cart, price, invoice } = generateCart(difficulty);
     currentPrice = price;
     expectedInvoice = invoice;
     io.of("/team").emit("cart", cart);

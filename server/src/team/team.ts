@@ -4,6 +4,7 @@ export const generateTeam = (teamName: string): Team => {
   return {
     points: 0,
     name: teamName,
+    validAnswerInARow: 0,
   };
 };
 
@@ -19,4 +20,10 @@ export const getTeam = (teams: Team[], teamName: string): Team => {
     enrichTeams(teams, teamName);
 
   return currentTeam;
+};
+
+export const resetValidAnswerStreak = (teams: Team[]): void => {
+  teams.forEach((team) => {
+    team.validAnswerInARow = 0;
+  });
 };
