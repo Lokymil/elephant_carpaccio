@@ -12,6 +12,7 @@ export const initSocket = (server: Server) => {
   const validAnswerStreakThreshold = 10;
   let expectedInvoice: Invoice;
   let currentPrice: number;
+  // TODO defaultly increment this after 15min
   let difficulty = 4;
 
   io.of("/scores").on("connection", (socket) => {
@@ -60,10 +61,11 @@ export const initSocket = (server: Server) => {
     });
   });
 
+  // TODO adjust emit frequency
   setInterval(() => {
     const { cart, price, invoice } = generateCart(difficulty);
     currentPrice = price;
     expectedInvoice = invoice;
     io.of("/team").emit("cart", cart);
-  }, 15000);
+  }, 10000);
 };

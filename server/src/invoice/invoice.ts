@@ -95,6 +95,7 @@ const getInvoiceSpecialReduction = (
   );
 };
 
+// TODO unit test this !
 export const getInvoice = (cart: Cart): { price: number; invoice: string } => {
   switch (cart.reduction) {
     case Reduction.HALF_FIRST:

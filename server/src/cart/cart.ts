@@ -37,6 +37,7 @@ const generateReduction = (possibleReductions: Reduction[]): Reduction => {
   return possibleReductions[getRandomFrom1ToX(possibleReductions.length) - 1];
 };
 
+// TODO unit test this ?
 export const generateCart = (
   difficulty: number
 ): {

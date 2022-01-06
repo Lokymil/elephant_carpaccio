@@ -6,6 +6,7 @@ import { DifficultyStage } from "./difficulty.types";
  * Duplicated values are used to simulate pseudo random chance to get
  * value occuring more often
  */
+// TODO adjust values to make a nice progression curve
 const difficultyStages: DifficultyStage[] = [
   {
     possibleNumberOfItems: [1, 1, 1, 1, 1, 1, 1, 1, 2, 3],
