@@ -1,5 +1,5 @@
 import { Cart, Country } from "./cart.types";
-import { applyConversion, getCountrySymbol } from "../country";
+import { applyConversion, getCountrySymbol } from "./country";
 
 const getFinalInvoiceFromReducedPriceAndCountry = (
   price: number,
@@ -40,8 +40,68 @@ const getInvoiceGlobalReduction = (
   );
 };
 
+const getInvoiceFirstReduction = (
+  cart: Cart
+): { price: number; invoice: string } => {
+  const pricePriorCountryConversion = cart.prices.reduce(
+    (finalPrice, itemPrice, index) => {
+      const factor = index === 0 ? 0.5 : 1;
+      const currentPrice = itemPrice * cart.quantities[index] * factor;
+      return finalPrice + currentPrice;
+    },
+    0
+  );
+
+  return getFinalInvoiceFromReducedPriceAndCountry(
+    pricePriorCountryConversion,
+    cart.country
+  );
+};
+
+const getInvoiceLastReduction = (
+  cart: Cart
+): { price: number; invoice: string } => {
+  const pricePriorCountryConversion = cart.prices.reduce(
+    (finalPrice, itemPrice, index, arr) => {
+      const factor = index === arr.length - 1 ? 0.5 : 1;
+      const currentPrice = itemPrice * cart.quantities[index] * factor;
+      return finalPrice + currentPrice;
+    },
+    0
+  );
+
+  return getFinalInvoiceFromReducedPriceAndCountry(
+    pricePriorCountryConversion,
+    cart.country
+  );
+};
+
+const getInvoiceSpecialReduction = (
+  cart: Cart
+): { price: number; invoice: string } => {
+  const pricePriorCountryConversion = cart.prices.reduce(
+    (finalPrice, itemPrice, index) => {
+      const factor = Math.max(1 - (index + 1) / 10, 0.5);
+      const currentPrice = itemPrice * cart.quantities[index] * factor;
+      return finalPrice + currentPrice;
+    },
+    0
+  );
+
+  return getFinalInvoiceFromReducedPriceAndCountry(
+    pricePriorCountryConversion,
+    cart.country
+  );
+};
+
 export const getInvoice = (cart: Cart): { price: number; invoice: string } => {
   switch (cart.reduction) {
+    case "-50% FIRST":
+      return getInvoiceFirstReduction(cart);
+    case "-50% LAST":
+      return getInvoiceLastReduction(cart);
+    case "SPECIAL":
+      return getInvoiceSpecialReduction(cart);
     case "STANDARD":
     case "-10%":
     case "-50%":
