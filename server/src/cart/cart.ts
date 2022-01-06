@@ -7,14 +7,17 @@ const getRandomFrom1ToX = (upperBound: number): number => {
   return roundRandFrom0ToXMinus1 + 1;
 };
 
-const getPricesAndQuantity = (): {
+const getPricesAndQuantity = (
+  possibleNumberOfItems: number[]
+): {
   prices: number[];
   quantities: number[];
 } => {
   const prices: number[] = [];
   const quantities: number[] = [];
 
-  const itemNumber = getRandomFrom1ToX(3);
+  const itemNumber =
+    possibleNumberOfItems[getRandomFrom1ToX(possibleNumberOfItems.length - 1)];
   for (let itemIndex = 0; itemIndex < itemNumber; itemIndex++) {
     prices.push(Math.max(getRandomFrom1ToX(100), 10));
     quantities.push(getRandomFrom1ToX(10));
@@ -23,12 +26,12 @@ const getPricesAndQuantity = (): {
   return { prices, quantities };
 };
 
-const generateCountry = (countries: Country[]): Country => {
-  return countries[getRandomFrom1ToX(countries.length) - 1];
+const generateCountry = (possibleCountries: Country[]): Country => {
+  return possibleCountries[getRandomFrom1ToX(possibleCountries.length) - 1];
 };
 
-const generateReduction = (reductions: Reduction[]): Reduction => {
-  return reductions[getRandomFrom1ToX(reductions.length) - 1];
+const generateReduction = (possibleReductions: Reduction[]): Reduction => {
+  return possibleReductions[getRandomFrom1ToX(possibleReductions.length) - 1];
 };
 
 export const generateCart = (): {
@@ -37,7 +40,7 @@ export const generateCart = (): {
   price: number;
 } => {
   const cart: Cart = {
-    ...getPricesAndQuantity(),
+    ...getPricesAndQuantity([1, 2, 3]),
     country: generateCountry(["FR", "US", "UK"]),
     reduction: generateReduction([
       "STANDARD",
