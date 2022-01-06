@@ -1,5 +1,5 @@
 import { Cart, Country } from "./cart.types";
-import { applyConversion, getCountrySymbol } from "./country";
+import { applyConversion, getCountrySymbol } from "../country";
 
 const getFinalInvoiceFromReducedPriceAndCountry = (
   price: number,
