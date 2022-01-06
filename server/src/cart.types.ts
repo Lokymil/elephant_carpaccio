@@ -1,8 +1,18 @@
 export type Cart = {
   prices: Number[];
   quantities: Number[];
-  country: "FR" | "US" | "UK";
-  reduction: "STANDARD";
+  country: Country;
+  reduction: Reduction;
 };
 
 export type Invoice = string;
+
+export type Country = "FR" | "US" | "UK";
+
+export type Reduction =
+  | "STANDARD"
+  | "-50%"
+  | "-10%"
+  | "-50% FIRST"
+  | "-50% LAST"
+  | "SPECIAL";
