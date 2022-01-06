@@ -1,4 +1,5 @@
 import { Cart, Country, Invoice, Reduction } from "./cart.types";
+import { getInvoice } from "./invoice";
 
 const getRandomFrom1ToX = (upperBound: number): number => {
   const randFrom0ToXMinus1 = Math.random() * (upperBound - 1);
@@ -48,9 +49,5 @@ export const generateCart = (): {
     ]),
   };
 
-  const price = 10;
-
-  const invoice = `${price} €`;
-
-  return { cart, price, invoice };
+  return { cart, ...getInvoice(cart) };
 };

@@ -1,6 +1,6 @@
 export type Cart = {
-  prices: Number[];
-  quantities: Number[];
+  prices: number[];
+  quantities: number[];
   country: Country;
   reduction: Reduction;
 };
