@@ -1,9 +1,9 @@
 import { Server } from "http";
 import { Server as Socket } from "socket.io";
-import { generateCart } from "./cart/cart";
-import { Invoice } from "./cart/cart.types";
-import { getTeam } from "./team";
-import { Team } from "./team.types";
+import { generateCart } from "../cart/cart";
+import { Invoice } from "../invoice/invoice.types";
+import { getTeam } from "../team/team";
+import { Team } from "../team/team.types";
 
 export const initSocket = (server: Server) => {
   const io = new Socket(server);

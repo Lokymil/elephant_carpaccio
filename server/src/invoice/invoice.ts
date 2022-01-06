@@ -1,5 +1,6 @@
-import { Cart, Country } from "./cart.types";
-import { applyConversion, getCountrySymbol } from "./country";
+import { Cart } from "../cart/cart.types";
+import { applyConversion, getCountrySymbol } from "../country/country";
+import { Country } from "../country/country.types";
 
 const getFinalInvoiceFromReducedPriceAndCountry = (
   price: number,

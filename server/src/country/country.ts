@@ -1,4 +1,4 @@
-import { Country } from "./cart.types";
+import { Country } from "./country.types";
 
 const countryMapping = {
   FR: { factor: 1, symbol: "€" },
