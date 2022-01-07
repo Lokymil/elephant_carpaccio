@@ -12,7 +12,6 @@ export const initSocket = (server: Server) => {
   const validAnswerStreakThreshold = 10;
   let expectedInvoice: Invoice;
   let currentPrice: number;
-  // TODO defaultly increment this after 15min
   let difficulty = 0;
 
   io.of("/scores").on("connection", (socket) => {

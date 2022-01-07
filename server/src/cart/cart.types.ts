@@ -9,9 +9,9 @@ export type Cart = {
 
 export enum Reduction {
   STANDARD = "STANDARD",
-  HALF = "-50%",
-  TENTH = "-10%",
-  HALF_FIRST = "-50% FIRST",
-  HALF_LAST = "-50% LAST",
+  HALF = "HALF",
+  TENTH = "TENTH",
+  HALF_FIRST = "HALF_FIRST",
+  HALF_LAST = "HALF_LAST",
   SPECIAL = "SPECIAL",
 }
