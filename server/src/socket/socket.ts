@@ -13,7 +13,7 @@ export const initSocket = (server: Server) => {
   let expectedInvoice: Invoice;
   let currentPrice: number;
   // TODO defaultly increment this after 15min
-  let difficulty = 4;
+  let difficulty = 0;
 
   io.of("/scores").on("connection", (socket) => {
     console.log("Scores connected");

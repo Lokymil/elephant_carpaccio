@@ -9,12 +9,14 @@ import { DifficultyStage } from "./difficulty.types";
 // TODO adjust values to make a nice progression curve
 const difficultyStages: DifficultyStage[] = [
   {
-    possibleNumberOfItems: [1, 1, 1, 1, 1, 1, 1, 1, 2, 3],
+    possibleNumberOfItems: [1, 1, 1, 1, 1, 1, 1, 2, 2, 3],
+    maxQuantityPerItem: 1,
     possibleCountries: [Country.FR],
     possibleReductions: [Reduction.STANDARD],
   },
   {
     possibleNumberOfItems: [1, 2, 3],
+    maxQuantityPerItem: 5,
     possibleCountries: [Country.FR],
     possibleReductions: [
       Reduction.STANDARD,
@@ -26,11 +28,13 @@ const difficultyStages: DifficultyStage[] = [
   },
   {
     possibleNumberOfItems: [1, 2, 3],
+    maxQuantityPerItem: 10,
     possibleCountries: [Country.FR, Country.UK],
     possibleReductions: [Reduction.STANDARD, Reduction.HALF, Reduction.TENTH],
   },
   {
     possibleNumberOfItems: [1, 2, 3],
+    maxQuantityPerItem: 10,
     possibleCountries: [Country.FR, Country.UK, Country.US],
     possibleReductions: [
       Reduction.STANDARD,
@@ -42,6 +46,7 @@ const difficultyStages: DifficultyStage[] = [
   },
   {
     possibleNumberOfItems: [3, 4, 5, 6],
+    maxQuantityPerItem: 10,
     possibleCountries: [Country.FR, Country.UK, Country.US],
     possibleReductions: [
       Reduction.STANDARD,

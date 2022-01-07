@@ -11,7 +11,8 @@ const getRandomFrom1ToX = (upperBound: number): number => {
 };
 
 const getPricesAndQuantity = (
-  possibleNumberOfItems: number[]
+  possibleNumberOfItems: number[],
+  maxQuantityPerItem: number
 ): {
   prices: number[];
   quantities: number[];
@@ -23,7 +24,7 @@ const getPricesAndQuantity = (
     possibleNumberOfItems[getRandomFrom1ToX(possibleNumberOfItems.length - 1)];
   for (let itemIndex = 0; itemIndex < itemNumber; itemIndex++) {
     prices.push(Math.max(getRandomFrom1ToX(100), 10));
-    quantities.push(getRandomFrom1ToX(10));
+    quantities.push(getRandomFrom1ToX(maxQuantityPerItem));
   }
 
   return { prices, quantities };
@@ -45,10 +46,14 @@ export const generateCart = (
   invoice: Invoice;
   price: number;
 } => {
-  const { possibleNumberOfItems, possibleCountries, possibleReductions } =
-    getOptionsByDifficulty(difficulty);
+  const {
+    possibleNumberOfItems,
+    maxQuantityPerItem,
+    possibleCountries,
+    possibleReductions,
+  } = getOptionsByDifficulty(difficulty);
   const cart: Cart = {
-    ...getPricesAndQuantity(possibleNumberOfItems),
+    ...getPricesAndQuantity(possibleNumberOfItems, maxQuantityPerItem),
     country: generateCountry(possibleCountries),
     reduction: generateReduction(possibleReductions),
   };
