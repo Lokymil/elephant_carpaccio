@@ -35,8 +35,6 @@ export const initSocket = (server: Server) => {
     socket.on("invoice", (invoice) => {
       if (!team) return;
 
-      console.log(invoice);
-
       if (invoice === expectedInvoice) {
         team.points += Math.round(currentPrice);
         team.validAnswerInARow += 1;
