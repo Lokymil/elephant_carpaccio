@@ -1,4 +1,4 @@
-package fr.arrestier.elephantcarpaccio.invoice;
+package fr.arrestier.elephantcarpaccio.cart;
 
 import org.json.JSONArray;
 import org.json.JSONException;

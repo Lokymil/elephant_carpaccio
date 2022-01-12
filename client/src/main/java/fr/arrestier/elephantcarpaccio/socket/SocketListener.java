@@ -1,6 +1,6 @@
 package fr.arrestier.elephantcarpaccio.socket;
 
-import fr.arrestier.elephantcarpaccio.invoice.CartEventListener;
+import fr.arrestier.elephantcarpaccio.cart.CartEventListener;
 import fr.arrestier.elephantcarpaccio.url.UrlGenerator;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -29,7 +29,7 @@ public class SocketListener {
             }
         });
 
-        socket.on(CartEventListener.CART_EVENT, new CartEventListener());
+        socket.on(CartEventListener.CART_EVENT, new CartEventListener(socket));
         socket.connect();
         this.authenticate();
     }
