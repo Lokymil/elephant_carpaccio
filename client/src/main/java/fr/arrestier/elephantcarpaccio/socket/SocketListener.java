@@ -1,5 +1,6 @@
 package fr.arrestier.elephantcarpaccio.socket;
 
+import fr.arrestier.elephantcarpaccio.invoice.CartEventListener;
 import fr.arrestier.elephantcarpaccio.url.UrlGenerator;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -11,9 +12,12 @@ import org.springframework.stereotype.Component;
 @EnableAsync
 @Component
 public class SocketListener {
+    private final static String AUTH_EVENT = "auth";
+
     @Autowired
     private UrlGenerator urlGenerator;
 
+    // TODO implement a timeout to auto kill connection
     private Socket socket;
 
     public void listen() {
@@ -24,6 +28,8 @@ public class SocketListener {
                 System.out.println("Connected to server!");
             }
         });
+
+        socket.on(CartEventListener.CART_EVENT, new CartEventListener());
         socket.connect();
         this.authenticate();
     }
