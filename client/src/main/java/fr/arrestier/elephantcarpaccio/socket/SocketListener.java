@@ -25,5 +25,11 @@ public class SocketListener {
             }
         });
         socket.connect();
+        this.authenticate();
+    }
+
+    // TODO make it a handshake instead of emitting an event
+    private void authenticate() {
+        socket.emit("auth", "java team");
     }
 }
