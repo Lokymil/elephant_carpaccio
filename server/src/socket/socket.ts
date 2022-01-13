@@ -6,7 +6,7 @@ import { getTeam, resetValidAnswerStreak } from "../team/team";
 import { Team } from "../team/team.types";
 
 export const initSocket = (server: Server) => {
-  const io = new Socket(server);
+  const io = new Socket(server, { cors: { origin: "*" } });
 
   const teams: Team[] = [];
   let isStarted = false;
