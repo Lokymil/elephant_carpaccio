@@ -2,6 +2,7 @@ import { Team } from "./team.types";
 
 export const generateTeam = (teamName: string): Team => {
   return {
+    hasAnswerLast: true,
     points: 0,
     name: teamName,
     validAnswerInARow: 0,

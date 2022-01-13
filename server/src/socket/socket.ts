@@ -46,6 +46,7 @@ export const initSocket = (server: Server) => {
       if (invoice === expectedInvoice) {
         team.points += Math.round(currentPrice);
         team.validAnswerInARow += 1;
+        team.hasAnswerLast = true;
         socket.emit("invoice", "OK");
       } else {
         team.points -= Math.round(currentPrice / 2);
@@ -81,6 +82,11 @@ export const initSocket = (server: Server) => {
     isStarted = true;
 
     const cartSenderInterval = setInterval(() => {
+      teams.forEach((team) => {
+        if (!team.hasAnswerLast) team.points -= currentPrice;
+
+        team.hasAnswerLast = false;
+      });
       const { cart, price, invoice } = generateCart(difficulty);
       currentPrice = price;
       expectedInvoice = invoice;
