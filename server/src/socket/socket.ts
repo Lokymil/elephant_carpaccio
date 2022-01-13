@@ -15,8 +15,8 @@ export const initSocket = (server: Server) => {
     console.log("Scores connected");
 
     const teamSender = setInterval(
-      () => socket.emit("current", { isStarted, teams }),
-      5000
+      () => socket.emit("current", { isStarted, teams, difficulty }),
+      1000
     );
 
     socket.on("start", startSendingCarts);
