@@ -1,22 +1,18 @@
-import { useState, useRef, useEffect } from "react";
-import { io } from "socket.io-client";
+import { useState, useEffect } from "react";
+import { socket } from "./socket";
 
 function App() {
-  const socketContainer = useRef(null);
   const [teams, setTeams] = useState([]);
   const [isStarted, setIsStarted] = useState(false);
+  useEffect(() => {}, []);
 
-  useEffect(() => {
-    socketContainer.current = io("http://localhost:3000/scores");
-  }, []);
-
-  socketContainer.current?.on("current", ({ teams, isStarted }) => {
+  socket.on("current", ({ teams, isStarted }) => {
     setTeams(teams);
     setIsStarted(isStarted);
   });
 
   const startGame = () => {
-    socketContainer.current?.emit("start");
+    socket.emit("start");
   };
 
   return (
