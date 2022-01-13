@@ -9,20 +9,28 @@ export const initSocket = (server: Server) => {
   const io = new Socket(server);
 
   const teams: Team[] = [];
-  const validAnswerStreakThreshold = 10;
-  let expectedInvoice: Invoice;
-  let currentPrice: number;
-  let difficulty = 0;
+  let isStarted = false;
 
   io.of("/scores").on("connection", (socket) => {
     console.log("Scores connected");
 
-    setInterval(() => socket.emit("current", teams), 5000);
+    const teamSender = setInterval(
+      () => socket.emit("current", { isStarted, teams }),
+      5000
+    );
+
+    socket.on("start", startSendingCarts);
 
     socket.on("disconnect", () => {
+      clearInterval(teamSender);
       console.log("Scores disconnected");
     });
   });
+
+  const validAnswerStreakThreshold = 10;
+  let expectedInvoice: Invoice;
+  let currentPrice: number;
+  let difficulty = 0;
 
   io.of("/team").on("connection", (socket) => {
     let team: Team;
@@ -45,26 +53,53 @@ export const initSocket = (server: Server) => {
         team.validAnswerInARow = 0;
       }
 
-      if (
-        teams.some(
-          (team) => team.validAnswerInARow >= validAnswerStreakThreshold
-        )
-      ) {
-        difficulty++;
-        resetValidAnswerStreak(teams);
-      }
+      checkDifficultyUpdate();
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", (): void => {
       console.log(`team ${team?.name} disconnected`);
     });
   });
 
-  // TODO adjust emit frequency
-  setInterval(() => {
-    const { cart, price, invoice } = generateCart(difficulty);
-    currentPrice = price;
-    expectedInvoice = invoice;
-    io.of("/team").emit("cart", cart);
-  }, 10000);
+  const checkDifficultyUpdate = () => {
+    if (
+      teams.some((team) => team.validAnswerInARow >= validAnswerStreakThreshold)
+    ) {
+      difficulty++;
+      console.log(`Difficulty updated to ${difficulty}`);
+      resetValidAnswerStreak(teams);
+    }
+  };
+
+  const startSendingCarts = (): void => {
+    console.log(`
+    ----------------------
+    Start sending cart for 1 hour
+    Difficulty: ${difficulty}
+    ----------------------
+    `);
+    isStarted = true;
+
+    const cartSenderInterval = setInterval(() => {
+      const { cart, price, invoice } = generateCart(difficulty);
+      currentPrice = price;
+      expectedInvoice = invoice;
+      io.of("/team").emit("cart", cart);
+    }, 10000);
+
+    /**
+     * Stop sending carts after one hour
+     */
+    setTimeout(() => {
+      isStarted = false;
+      difficulty = 0;
+      clearInterval(cartSenderInterval);
+      console.log(`
+    ----------------------
+    Stop sending cart !
+    Reset difficulty to ${difficulty}
+    ----------------------
+      `);
+    }, 3600000);
+  };
 };

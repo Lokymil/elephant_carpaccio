@@ -3,13 +3,18 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io("/scores");
-    socket.on("current", (teams) => {
-        console.log(teams)
+    socket.on("current", ({ isStarted, teams}) => {
+        console.log(teams);
     })
+
+    function start() {
+        socket.emit("start");
+    }
 </script>
 
 <body>
     Scores !
+    <button onclick="start()">Start</button>
 </body>
 
 </html>
