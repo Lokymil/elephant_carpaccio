@@ -13,6 +13,10 @@ socket.on("cart", (cart) => {
   socket.emit("invoice", invoice);
 });
 
+socket.on("invoice", (invoice) => {
+  console.log(`Result: ${invoice}`);
+});
+
 socket.on("disconnect", () => {
   console.log("Disconnected"); // undefined
 });
