@@ -1,0 +1,11 @@
+{
+  "name": "client-js",
+  "version": "1.0.0",
+  "description": "Client counter part of elephant carpaccio",
+  "main": "index.js",
+  "author": "Christophe ARRESTIER",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js"
+  } 
+}
