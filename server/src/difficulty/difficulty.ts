@@ -55,6 +55,8 @@ const difficultyStages: DifficultyStage[] = [
       Reduction.HALF_FIRST,
       Reduction.HALF_LAST,
       Reduction.SPECIAL,
+      Reduction.SPECIAL,
+      Reduction.SPECIAL,
     ],
   },
 ];
