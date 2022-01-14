@@ -5,7 +5,13 @@ import { Invoice } from "../invoice/invoice.types";
 import { getTeam, resetValidAnswerStreak } from "../team/team";
 import { Team } from "../team/team.types";
 import { SocketType } from "./socket.types";
-import { cartRate, totalDuration, startDifficulty } from "../conf";
+import {
+  cartRate,
+  totalDuration,
+  startDifficulty,
+  wrongAnswerFactor,
+  noAnswwerFactor,
+} from "../conf";
 import { numberOfDifficultyLevel } from "../difficulty/difficulty";
 
 export const initSocket = (server: Server) => {
@@ -74,7 +80,7 @@ export const initSocket = (server: Server) => {
       team.hasAnswerLast = true;
       socket.emit("invoice", `OK | your points: ${team.points}`);
     } else {
-      team.points -= Math.round(currentPrice / 2);
+      team.points -= Math.round(currentPrice * wrongAnswerFactor);
       socket.emit(
         "invoice",
         `KO ${expectedInvoice} | your points: ${team.points}`
@@ -103,7 +109,7 @@ export const initSocket = (server: Server) => {
    */
   const removePointsFromNotAnsweringTeams = () => {
     teams.forEach((team) => {
-      if (!team.hasAnswerLast) team.points -= currentPrice;
+      if (!team.hasAnswerLast) team.points -= currentPrice * noAnswwerFactor;
       team.hasAnswerLast = false;
     });
   };
