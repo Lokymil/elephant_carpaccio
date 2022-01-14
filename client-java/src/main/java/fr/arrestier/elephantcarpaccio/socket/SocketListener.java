@@ -7,6 +7,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,8 @@ public class SocketListener {
 
     @Autowired
     private UrlGenerator urlGenerator;
+    @Value("${name}")
+    private String name;
 
     // TODO implement a timeout to auto kill connection
     private Socket socket;
@@ -38,6 +41,6 @@ public class SocketListener {
 
     // TODO make it a handshake instead of emitting an event
     private void authenticate() {
-        socket.emit("auth", "java team");
+        socket.emit("auth", name);
     }
 }

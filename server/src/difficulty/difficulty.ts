@@ -64,3 +64,5 @@ const difficultyStages: DifficultyStage[] = [
 export const getOptionsByDifficulty = (difficulty: number): DifficultyStage => {
   return difficultyStages[Math.min(difficulty, 4)];
 };
+
+export const numberOfDifficultyLevel = difficultyStages.length;

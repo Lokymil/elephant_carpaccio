@@ -5,6 +5,8 @@ import { Invoice } from "../invoice/invoice.types";
 import { getTeam, resetValidAnswerStreak } from "../team/team";
 import { Team } from "../team/team.types";
 import { SocketType } from "./socket.types";
+import { cartRate, totalDuration, startDifficulty } from "../conf";
+import { numberOfDifficultyLevel } from "../difficulty/difficulty";
 
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
@@ -34,7 +36,7 @@ export const initSocket = (server: Server) => {
   const validAnswerStreakThreshold = 10;
   let expectedInvoice: Invoice;
   let currentPrice: number;
-  let difficulty = 0;
+  let difficulty = startDifficulty;
 
   /**
    * Setup socket for team interaction
@@ -91,7 +93,7 @@ export const initSocket = (server: Server) => {
       teams.some((team) => team.validAnswerInARow >= validAnswerStreakThreshold)
     ) {
       difficulty++;
-      console.log(`Difficulty updated to ${difficulty}`);
+      console.log(`--------> Difficulty updated to ${difficulty}`);
       resetValidAnswerStreak(teams);
     }
   };
@@ -119,27 +121,36 @@ export const initSocket = (server: Server) => {
     `);
     isStarted = true;
 
+    /**
+     *
+     */
     const cartSenderInterval = setInterval(() => {
       removePointsFromNotAnsweringTeams();
       const { cart, price, invoice } = generateCart(difficulty);
       currentPrice = price;
       expectedInvoice = invoice;
       io.of("/team").emit("cart", cart);
-    }, 10000);
+    }, cartRate);
+
+    const difficultyAutoIncrease = setInterval(() => {
+      difficulty++;
+    }, totalDuration / (numberOfDifficultyLevel - 1));
 
     /**
      * Stop sending carts after one hour
      */
     setTimeout(() => {
-      isStarted = false;
-      difficulty = 0;
       clearInterval(cartSenderInterval);
+      clearInterval(difficultyAutoIncrease);
+      isStarted = false;
+      difficulty = startDifficulty;
+
       console.log(`
     ----------------------
     Stop sending cart !
     Reset difficulty to ${difficulty}
     ----------------------
       `);
-    }, 3600000);
+    }, totalDuration);
   };
 };
