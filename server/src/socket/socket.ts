@@ -4,6 +4,7 @@ import { generateCart } from "../cart/cart";
 import { Invoice } from "../invoice/invoice.types";
 import { getTeam, resetValidAnswerStreak } from "../team/team";
 import { Team } from "../team/team.types";
+import { SocketType } from "./socket.types";
 
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
@@ -11,6 +12,9 @@ export const initSocket = (server: Server) => {
   const teams: Team[] = [];
   let isStarted = false;
 
+  /**
+   * Setup socket for scoring display
+   */
   io.of("/scores").on("connection", (socket) => {
     console.log("Scores connected");
 
@@ -32,6 +36,9 @@ export const initSocket = (server: Server) => {
   let currentPrice: number;
   let difficulty = 0;
 
+  /**
+   * Setup socket for team interaction
+   */
   io.of("/team").on("connection", (socket) => {
     let team: Team;
 
@@ -41,27 +48,44 @@ export const initSocket = (server: Server) => {
     });
 
     socket.on("invoice", (invoice) => {
-      if (!team) return;
-
-      if (invoice === expectedInvoice) {
-        team.points += Math.round(currentPrice);
-        team.validAnswerInARow += 1;
-        team.hasAnswerLast = true;
-        socket.emit("invoice", "OK");
-      } else {
-        team.points -= Math.round(currentPrice / 2);
-        socket.emit("invoice", `KO ${expectedInvoice}`);
-        team.validAnswerInARow = 0;
+      if (team) {
+        updateFromInvoice(socket, team, invoice);
       }
-
-      checkDifficultyUpdate();
     });
 
     socket.on("disconnect", (): void => {
-      console.log(`team ${team?.name} disconnected`);
+      console.log(`${team?.name} disconnected`);
     });
   });
 
+  /**
+   * Validate invoice and update team and difficulty accordingly
+   */
+  const updateFromInvoice = (
+    socket: SocketType,
+    team: Team,
+    invoice: Invoice
+  ): void => {
+    if (invoice === expectedInvoice) {
+      team.points += Math.round(currentPrice);
+      team.validAnswerInARow += 1;
+      team.hasAnswerLast = true;
+      socket.emit("invoice", `OK | your points: ${team.points}`);
+    } else {
+      team.points -= Math.round(currentPrice / 2);
+      socket.emit(
+        "invoice",
+        `KO ${expectedInvoice} | your points: ${team.points}`
+      );
+      team.validAnswerInARow = 0;
+    }
+
+    checkDifficultyUpdate();
+  };
+
+  /**
+   * Update difficulty if a team has a long enough win streak
+   */
   const checkDifficultyUpdate = () => {
     if (
       teams.some((team) => team.validAnswerInARow >= validAnswerStreakThreshold)
@@ -72,6 +96,20 @@ export const initSocket = (server: Server) => {
     }
   };
 
+  /**
+   * Update teams for not answering team
+   */
+  const removePointsFromNotAnsweringTeams = () => {
+    teams.forEach((team) => {
+      if (!team.hasAnswerLast) team.points -= currentPrice;
+      team.hasAnswerLast = false;
+    });
+  };
+
+  /**
+   * Trigger scheduler to send cart at given rate
+   * Start timeout to stop after a given delay
+   */
   const startSendingCarts = (): void => {
     console.log(`
     ----------------------
@@ -82,11 +120,7 @@ export const initSocket = (server: Server) => {
     isStarted = true;
 
     const cartSenderInterval = setInterval(() => {
-      teams.forEach((team) => {
-        if (!team.hasAnswerLast) team.points -= currentPrice;
-
-        team.hasAnswerLast = false;
-      });
+      removePointsFromNotAnsweringTeams();
       const { cart, price, invoice } = generateCart(difficulty);
       currentPrice = price;
       expectedInvoice = invoice;
