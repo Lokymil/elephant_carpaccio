@@ -39,7 +39,7 @@ export const initSocket = (server: Server) => {
         socket.emit("current", {
           isStarted,
           teams,
-          difficulty,
+          difficulty: Math.min(difficulty, numberOfDifficultyLevel - 1),
           remainingTime: getRemainingTime(),
           remainingDifficultyTime: getRemainingDifficultyTime(),
         }),
@@ -200,6 +200,8 @@ export const initSocket = (server: Server) => {
       clearInterval(difficultyAutoIncrease);
       isStarted = false;
       difficulty = startDifficulty;
+      startingTimestamp = 0;
+      startingDifficultyTimestamp = 0;
 
       console.log(`
     ----------------------
