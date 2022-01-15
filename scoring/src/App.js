@@ -42,10 +42,13 @@ function App() {
         ))}
       </div>
       <div className="metadata">
-        <Timer title="Temps restant" remainingTime={remainingTime} />
+        <Timer
+          title="Remaining time before the end"
+          remainingTime={remainingTime}
+        />
         <h3>Difficulty level : {difficulty}</h3>
         <Timer
-          title="Temps restant pour cette difficulté"
+          title="Remaining time before difficulty auto-increase"
           remainingTime={remainingDifficultyTime}
         />
       </div>
