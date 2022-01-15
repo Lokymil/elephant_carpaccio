@@ -11,6 +11,7 @@ import {
   startDifficulty,
   wrongAnswerFactor,
   noAnswwerFactor,
+  validAnswerStreakThreshold,
 } from "../conf";
 import { numberOfDifficultyLevel } from "../difficulty/difficulty";
 
@@ -19,6 +20,9 @@ export const initSocket = (server: Server) => {
 
   const teams: Team[] = [];
   let isStarted = false;
+  let expectedInvoice: Invoice;
+  let currentPrice: number;
+  let difficulty = startDifficulty;
 
   /**
    * Setup socket for scoring display
@@ -38,11 +42,6 @@ export const initSocket = (server: Server) => {
       console.log("Scores disconnected");
     });
   });
-
-  const validAnswerStreakThreshold = 10;
-  let expectedInvoice: Invoice;
-  let currentPrice: number;
-  let difficulty = startDifficulty;
 
   /**
    * Setup socket for team interaction
