@@ -1,2 +1,4 @@
-export const host = "localhost";
-export const name = "My awesome team";
+module.exports = {
+  host: "localhost",
+  name: "My awesome team",
+};

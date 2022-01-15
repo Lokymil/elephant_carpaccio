@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { socket } from "./socket";
+import "./App.css";
 
 function App() {
   const [teams, setTeams] = useState([]);
   const [isStarted, setIsStarted] = useState(false);
+  const [difficulty, setDifficulty] = useState(0);
   useEffect(() => {}, []);
 
-  socket.on("current", ({ teams, isStarted }) => {
+  socket.on("current", ({ teams, isStarted, difficulty }) => {
     setTeams(teams);
     setIsStarted(isStarted);
+    setDifficulty(difficulty);
   });
 
   const startGame = () => {
@@ -17,20 +20,16 @@ function App() {
 
   return (
     <div className="App">
-      <div
-        className="teams"
-        style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
-      >
+      <div className="teams">
         {teams.map((team) => (
           <div id={team.name}>
             <h2>{team.name}</h2>
-            <div>{team.points}</div>
+            <div>Score : {team.points}</div>
           </div>
         ))}
       </div>
-      <button disabled={isStarted} onClick={startGame}>
-        Start !
-      </button>
+      <div>Difficulty level : {difficulty}</div>
+      {!isStarted && <button onClick={startGame}>Start !</button>}
     </div>
   );
 }
