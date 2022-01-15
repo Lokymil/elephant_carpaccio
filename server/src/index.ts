@@ -1,5 +1,6 @@
 import express from "express";
 import http from "http";
+import { getIp } from "./network/ip";
 import { initSocket } from "./socket/socket";
 
 const app = express();
@@ -16,5 +17,5 @@ app.get("/scores", (req, res) => {
 });
 
 server.listen(3000, () => {
-  console.log("listening on *:3000");
+  console.log(`Server is started on ${getIp()}`);
 });
