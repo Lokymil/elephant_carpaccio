@@ -6,6 +6,7 @@ export const generateTeam = (teamName: string): Team => {
     points: 0,
     name: teamName,
     validAnswerInARow: 0,
+    connected: false,
   };
 };
 

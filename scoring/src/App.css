@@ -21,3 +21,11 @@
 .metadata > * {
   margin-right: 2rem;
 }
+
+.connected {
+  color: green;
+}
+
+.disconnected {
+  color: red;
+}

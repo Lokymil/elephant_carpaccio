@@ -62,7 +62,13 @@ export const initSocket = (server: Server) => {
 
     socket.on("auth", (teamName) => {
       team = getTeam(teams, teamName);
-      console.log(`${teamName} connected`);
+      if (team.connected) {
+        console.log(`${teamName} tried to connect twice`);
+        socket.disconnect(true);
+      } else {
+        team.connected = true;
+        console.log(`${teamName} connected`);
+      }
     });
 
     socket.on("invoice", (invoice) => {
@@ -73,6 +79,7 @@ export const initSocket = (server: Server) => {
 
     socket.on("disconnect", (): void => {
       console.log(`${team?.name} disconnected`);
+      team.connected = false;
     });
   });
 
