@@ -2,5 +2,22 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: flex-start;
+  margin-bottom: 2rem;
+}
+
+.team {
+  margin-right: 2rem;
+}
+
+.metadata {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-bottom: 2rem;
+}
+
+.metadata > * {
+  margin-right: 2rem;
 }

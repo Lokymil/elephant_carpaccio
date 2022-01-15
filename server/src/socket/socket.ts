@@ -15,6 +15,8 @@ import {
 } from "../conf";
 import { numberOfDifficultyLevel } from "../difficulty/difficulty";
 
+const difficultyMaxDuration = totalDuration / (numberOfDifficultyLevel - 1);
+
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
 
@@ -23,6 +25,8 @@ export const initSocket = (server: Server) => {
   let expectedInvoice: Invoice;
   let currentPrice: number;
   let difficulty = startDifficulty;
+  let startingTimestamp: number;
+  let startingDifficultyTimestamp: number;
 
   /**
    * Setup socket for scoring display
@@ -31,7 +35,14 @@ export const initSocket = (server: Server) => {
     console.log("Scores connected");
 
     const teamSender = setInterval(
-      () => socket.emit("current", { isStarted, teams, difficulty }),
+      () =>
+        socket.emit("current", {
+          isStarted,
+          teams,
+          difficulty,
+          remainingTime: getRemainingTime(),
+          remainingDifficultyTime: getRemainingDifficultyTime(),
+        }),
       1000
     );
 
@@ -87,18 +98,26 @@ export const initSocket = (server: Server) => {
       team.validAnswerInARow = 0;
     }
 
-    checkDifficultyUpdate();
+    checkDifficultyIncrease();
+  };
+
+  /**
+   * Increase difficulty and reset timestamp
+   */
+  const increaseDifficulty = () => {
+    difficulty++;
+    startingDifficultyTimestamp = new Date().getTime();
+    console.log(`--------> Difficulty updated to ${difficulty}`);
   };
 
   /**
    * Update difficulty if a team has a long enough win streak
    */
-  const checkDifficultyUpdate = () => {
+  const checkDifficultyIncrease = () => {
     if (
       teams.some((team) => team.validAnswerInARow >= validAnswerStreakThreshold)
     ) {
-      difficulty++;
-      console.log(`--------> Difficulty updated to ${difficulty}`);
+      increaseDifficulty;
       resetValidAnswerStreak(teams);
     }
   };
@@ -114,6 +133,26 @@ export const initSocket = (server: Server) => {
   };
 
   /**
+   * Compute remaining for total dev time
+   */
+  const getRemainingTime = () => {
+    const now = new Date().getTime();
+    const elapseTime = startingTimestamp ? now - startingTimestamp : 0;
+    return totalDuration - elapseTime;
+  };
+
+  /**
+   * Compute remaining for total dev time
+   */
+  const getRemainingDifficultyTime = () => {
+    const now = new Date().getTime();
+    const elapseTime = startingDifficultyTimestamp
+      ? now - startingDifficultyTimestamp
+      : 0;
+    return difficultyMaxDuration - elapseTime;
+  };
+
+  /**
    * Trigger scheduler to send cart at given rate
    * Start timeout to stop after a given delay
    */
@@ -125,6 +164,8 @@ export const initSocket = (server: Server) => {
     ----------------------
     `);
     isStarted = true;
+    startingTimestamp = new Date().getTime();
+    startingDifficultyTimestamp = new Date().getTime();
 
     /**
      *
@@ -138,8 +179,8 @@ export const initSocket = (server: Server) => {
     }, cartRate);
 
     const difficultyAutoIncrease = setInterval(() => {
-      difficulty++;
-    }, totalDuration / (numberOfDifficultyLevel - 1));
+      increaseDifficulty();
+    }, difficultyMaxDuration);
 
     /**
      * Stop sending carts after one hour
