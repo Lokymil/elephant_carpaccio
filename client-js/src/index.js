@@ -1,6 +1,6 @@
 const io = require("socket.io-client");
 const { name, host } = require("./conf");
-const invoiceGenerator = require("./invoice/invoice");
+const getInvoiceFromCart = require("./invoice/invoice");
 
 const socket = io(`http://${host}:3000/team`);
 
@@ -10,7 +10,7 @@ socket.on("connect", () => {
 });
 
 socket.on("cart", (cart) => {
-  const invoice = invoiceGenerator(cart);
+  const invoice = getInvoiceFromCart(cart);
   socket.emit("invoice", invoice);
 });
 

@@ -1,5 +1,5 @@
-const invoiceGenerator = (cart) => {
+const getInvoiceFromCart = (cart) => {
   return "0 €";
 };
 
-module.exports = invoiceGenerator;
+module.exports = getInvoiceFromCart;
