@@ -3,13 +3,13 @@
 To lead this workshop, you will have to make a server run on your computer.  
 Once the server is set up and running, you will just have to lead the workshop without taking care of anything other than your attendees.
 
-This server will send shopping cart to your attendees, they will have to answer with a valid invoice.  
+This server will send a shopping cart to your attendees, they will have to answer with a valid invoice.  
 Every time a cart is sent your attendees will :
 
 - win points if invoice is valid
 - lose few points if invoice is wrong
 - lose a lots of points they do not answer at all
-  To monitor these points, you will have to start a web intarface displaying all necessary information for you and your attendees.
+  To monitor these points, you will have to start a web interface displaying all necessary information for you and your attendees.
 
 ## Table of Content
 
@@ -46,8 +46,8 @@ Every time a cart is sent your attendees will :
 
 ### Install
 
-First of all, you have to install necessary tools make the server run.  
-Server and scoring interface are developped both developped with NodeJS 16.  
+First of all, you have to install necessary tools to make the server run.  
+Server and scoring interface are both developed with NodeJS 16.  
 To install NodeJS, you have to go [here](https://nodejs.org/en/).
 
 ### Start server
@@ -70,17 +70,17 @@ yarn
 yarn start
 ```
 
-Once you see `Server is started on ?.?.?.?`, your server is runnning !
+Once you see `Server is started on ?.?.?.?`, your server is running !
 
 #### Allow you attendees to connect
 
-Take note of displayed IP (`?.?.?.?`) and give this adress to your attendees. They will update the target host of their own project to receive carts.
+Take note of displayed IP (`?.?.?.?`) and give this address to your attendees. They will update the target host of their own project to receive carts.
 
-:warning: This adress may change every time you change network. Be sure to give your attendees the latest
+:warning: This address may change every time you change the network. Be sure to give your attendees the latest
 
 ### Start scoring interface
 
-To start sending cart to you attendees and monitor scores and remaining time, you will have to start this interface.  
+To start sending a shopping cart to your attendees and monitor scores and remaining time, you will have to start this interface.  
 To do so, open a new terminal in this folder and run these commands :
 
 #### With NPM
@@ -115,8 +115,8 @@ At this point all your attendees must be connected and from now on you will role
 
 ### Your introduction speech
 
-You are a small e-shopping company. The team in charge of developping shopping cart just deliver their first version. Your team (your attendees) must develop the invoice module that will receive a cart and must return the corresponding invoice (i.e.: `354 €`).  
-Be careful, your client are extremly picky and will refuse any invoice that is not exactly what they expected. Even a trailing white space will make an invoice invalid.
+You are a small e-shopping company. The team in charge of developing shopping cart just deliver their first version. Your team (your attendees) must develop the invoice module that will receive a cart and must return the corresponding invoice (i.e.: `354 €`).  
+Be careful, your clients are extremely picky and will refuse any invoice that is not exactly what they expected. Even a trailing white space will make an invoice invalid.
 
 ### Explain starting rules
 
@@ -124,16 +124,16 @@ Be careful, your client are extremly picky and will refuse any invoice that is n
 
 A cart will be emitted every **10 seconds**. The will have the following format :
 
-- `prices` : list of interger representing the price of each uniq item selected by the client (index matches with `quantities`)
-- `quantities` : list of interger representing quantity each item selected by the client (index matches with `prices`)
+- `prices` : list of integers representing the price of each unique item selected by the client (index matches with `quantities`)
+- `quantities` : list of integers representing quantity each item selected by the client (index matches with `prices`)
 - `country` : string representing the country of the buyer
 - `reduction` : string representing the type of reduction to be applied
 
 #### Difficulty
 
-Your company is still small and you have but few clients. At the beginning, cart will be small and not very challenging. As time pass and invoice reliability increase, clients will be more numerous and more confident. At the same time, cart dev team will add new feature and your company might deploy in new country. Then cart will be bigger and more complex.
+Your company is still small and you have but few clients. At the beginning, the shopping cart will be small and not very challenging. As time pass and invoice reliability increases, clients will be more numerous and more confident. At the same time, cart dev team will add new features and your company might deploy in a new country. Then the shopping cart will be bigger and more complex.
 
-This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every 10 minutes in a given difficulty, this level increase. It may increase earlier if one invoice module answer 10 valid invoices in a row (streak value in score interface).
+This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every 10 minutes in a given difficulty, the level increases. It may increase earlier if one invoice module answers 10 valid invoices in a row (streak value in score interface).
 
 #### What their module must do
 
@@ -150,44 +150,44 @@ This complexity is represented by a difficulty level from 0 (easiest) to 4 (hard
 
 #### Scoring
 
-- For every correct invoice, the client pay the price and you win as much money as invoice's price (you win as much points).
-- For every incorrect invoice, the client call client's service and ask a refund of half the price. Then you lose as much money as half invoice's price (you loose as much points).
-- For every cart you do not generate invoice, the client does not hav to pay then you loose as much money as invoice's price (you loose as much points).
+- For every correct invoice, the client pays the price and you win as much money as the invoice's price (you win as many points).
+- For every incorrect invoice, the client calls the client's service and asks for a refund of half the price. Then you lose as much money as half invoice's price (you loose as much points).
+- For every shopping cart you do not generate an invoice, the client does not have to pay, then you lose as much money as the invoice's price (you lose as many points).
 
-In other word, a correct answer grant 100% points, an incorrect asnwer remove 50% points and no answer at all remove 100%.
+In other word, a correct answer grant 100% points, an incorrect answer remove 50% points and no answer at all remove 100%.
 
 _Notes :_  
-_The point is to force every attendees to keep their program running. A partial service is still better than no service at all. It should make them understand that having quick feedback and trying to make a quick but partial solution is better than an exhaustive but slow solution._
+_The point is to force every attendee to keep their program running. A partial service is still better than no service at all. It should make them understand that having quick feedback and trying to make a quick but partial solution is better than an exhaustive but slow solution._
 
 ### Questions
 
-If they have questions, try to answer without giving to much. They must accept not to know everything, as it is in real life when you design a new big feature.
+If they have questions, try to answer without giving too much. They must accept not knowing everything, as it is in real life when you design a new big feature.
 
-You must not explain all the rules in the first place. Giving a few rules at the beginning is to tempt them to make an exhaustive solution. But new rules will appears and those who make small steps and adapt to changes will earn more points.
+You must not explain all the rules in the first place. Giving a few rules at the beginning is to tempt them to make an exhaustive solution. But new rules will appear and those who make small steps and adapt to changes will earn more points.
 
 ### Start
 
-At this point, everyone must have a running invoice module connected to the server (and appears in scoring interface) and every questions must have understood the rules.  
+At this point, everyone must have a running invoice module connected to the server (and appears in the scoring interface) and every question must have understood the rules.  
 When your attendees are ready, press `start` and allow them to code.
 
 ---
 
 ## Lead your workshop
 
-From now on, all you have to do is monitor scores and difficulty level, answer question when new rules appear.
+From now on, all you have to do is monitor scores and difficulty level, and answer questions when new rules appear.
 
 ### Answering questions
 
-Questions will generally appears at difficulty level 2. Answer only if a question is about something they have seen, never answer if an attendees try to over-enginneer or anticipate on what is to come.  
-Try to answer what is strictly necessary and answer only to the one asking. To keep your answer secret you can write on a paper to be sure no one over hear what you say.
+Questions will generally appear at difficulty level 2. Answer only if a question is about something they have seen, never answer if an attendees tries to over-engineer or anticipate what is to come.  
+Try to answer what is strictly necessary and answer only to the one asking. To keep your answer secret you can write on a paper to be sure no one will overhear what you say.
 
 The point is to force them to monitor the impact of each modification to ensure they are doing the right changes. And if it's not, they must ask their Product Owner, you.
 
-If you want to make it harder, you can simulate a briefing for every difficulty increase. As a Product Owner, you are requested to a meeting to understand the new rules and achievement of your company. As a consequence, you may not answer to any question for the first few minutes of a difficulty level.
+If you want to make it harder, you can simulate a briefing for every difficulty increase. As a Product Owner, you are requested to a meeting to understand the new rules and achievement of your company. As a consequence, you may not answer any question for the first few minutes of a difficulty level.
 
 ### Monitoring
 
-It is strongly advices to display scores to every attendees to add competition between them. Also it can help them know if they are taking the right decision and adjust if not.
+It is strongly advised to display scores to every attendees to add competition between them. Also it can help them know if they are taking the right decision and adjust if not.
 
 In the score interface, you will have :
 
@@ -202,18 +202,18 @@ In the score interface, you will have :
 To motivate your attendees, you can:
 
 - frequently announce current scores as if it was a sports championship
-- make small annoucement on difficulty increase (i.e.: "we open a shop in a new country")
-- advice those who stay disconnected to much to stay connected enough if they send wrong answer, they will loose less points
+- make small announcement on difficulty increase (i.e.: "we open a shop in a new country")
+- advice those who stay disconnected to much to stay connected enough if they send wrong answer, they will lose less points
 
 ---
 
 ## End your workshop
 
-Once you reach the end of the timer, the server will stop sending cart to your attendees. Display scores and declare who win.
+Once you reach the end of the timer, the server will stop sending shopping cart to your attendees. Display scores and declare who won.
 
-At this points, your main tool will be scores. Write them on a white board and ask each attendees what decision did they make (i.e.: "stop answering every time there was an incorrect invoice"). Write those down and, by associate it the their score, try to decide with everyone why it is a good or bad decision.
+At this point, your main tool will be scores. Write them on a white board and ask each attendees what decision they made (i.e.: "stop answering every time there was an incorrect invoice"). Write those down and, by associating it with their score, try to decide with everyone why it is a good or bad decision.
 
-If all your attendees has fairly the same development level, those who made small changes and kept answering even if it was not perfect will have the best scores. Try to make them find that small changes and frequent feedback is better than huge changes to be exhaustive strait away even if it take times.
+If all your attendees have fairly the same development level, those who made small changes and kept answering even if it was not perfect will have the best scores. Try to make them find that small changes and frequent feedback is better than huge changes to be exhaustive straight away even if it takes time.
 
 ---
 
@@ -221,7 +221,7 @@ If all your attendees has fairly the same development level, those who made smal
 
 ### Prices
 
-Any prices is between 10 and 100, included.
+Any price is between 10 and 100, included.
 
 ### Quantities
 
@@ -245,7 +245,7 @@ There is no reduction
 
 #### `HALF`
 
-Final price must be reduce by 50%.
+Final price must be reduced by 50%.
 
 ```
 finalPrice * 0.5
@@ -253,7 +253,7 @@ finalPrice * 0.5
 
 #### `TENTH`
 
-Final price must be reduce by 10%.
+Final price must be reduced by 10%.
 
 ```
 finalPrice * 0.9
@@ -261,7 +261,7 @@ finalPrice * 0.9
 
 #### `HALF_FIRST`
 
-Price of the first item must be reduce by 50%.
+Price of the first item must be reduced by 50%.
 
 ```
 prices[0] * quantities[0] * 0.5
@@ -269,7 +269,7 @@ prices[0] * quantities[0] * 0.5
 
 #### `HALF_LAST`
 
-Price of the last item must be reduce by 50%.
+Price of the last item must be reduced by 50%.
 
 ```
 prices[X] * quantities[X] * 0.5
@@ -277,16 +277,16 @@ prices[X] * quantities[X] * 0.5
 
 #### `SPECIAL`
 
-Price of the first item must be reduce by 10%.
-Price of the second item must be reduce by 20%.
-Price of the third item must be reduce by 30%.
-Price of the forth item must be reduce by 40%.
-Price of the fifth item must be reduce by 50%.
-Price of the sixth item must be reduce by 50%.
-Price of the seventh item must be reduce by 50%.
-Price of the eighth item must be reduce by 50%.
-Price of the nineth item must be reduce by 50%.
-Price of the tenth item must be reduce by 50%.
+Price of the first item must be reduced by 10%.
+Price of the second item must be reduced by 20%.
+Price of the third item must be reduced by 30%.
+Price of the forth item must be reduced by 40%.
+Price of the fifth item must be reduced by 50%.
+Price of the sixth item must be reduced by 50%.
+Price of the seventh item must be reduced by 50%.
+Price of the eighth item must be reduced by 50%.
+Price of the nineth item must be reduced by 50%.
+Price of the tenth item must be reduced by 50%.
 
 ```
 prices[0] * quantities[0] * 0.1
@@ -419,13 +419,13 @@ Possible reduction:
 
 ### Basic
 
-You can adjust few parameters to match your need or attendees experience by changing variable in `server/src/conf.ts`.
+You can adjust a few parameters to match your need or attendees' experience by changing variables in `server/src/conf.ts`.
 
 - `cartRate`: delay between two carts in milliseconds
-- `totalDuration`: total time for your attendees to develop their module. Difficulty auto update delay will be 1/4 of this duration. In other words, if your attendees do not manage to have 10 valid answer in a row in any difficulty level, they will never see last difficulty.
-- `startDifficulty`: difficulty level to start with between 0 (easiest) to 4 (hardest). It is advices to startt at 0 or 1.
-- `wrongAnswerFactor`: factor used to calculate how many points to loose if invoice is wrong
-- `noAnswerFactor`: factor used to calculate how many points to loose if no invoice is provided for a given cart
+- `totalDuration`: total time for your attendees to develop their module. Difficulty auto update delay will be 1/4 of this duration. In other words, if your attendees do not manage to have 10 valid answers in a row in any difficulty level, they will never see the last difficulty.
+- `startDifficulty`: difficulty level to start with between 0 (easiest) to 4 (hardest). It is advised to start at 0 or 1.
+- `wrongAnswerFactor`: factor used to calculate how many points to lose if invoice is wrong
+- `noAnswerFactor`: factor used to calculate how many points to lose if no invoice is provided for a given cart
 - `validAnswerStreakThreshold`: number of valid answer in a row required to increase difficulty before auto increase
 
 ### Advanced
@@ -439,13 +439,13 @@ You might want to begin with `server/src/difficulty/difficulty.ts` where all dif
 
 ### Attendee cannot connect
 
-You can see this be having one or multiple attendees missing in team list on score interface.
+You can see this by having one or multiple attendees missing in the team list on the score interface.
 
 1. Be sure they change the `host` configuration value to your IP.
 2. Be sure you are both on the same sub-network (same wifi, same ethernet connection)
 3. Be sure your network does not block local communication
 
-If none of this work, try this on another network et restart your server to have your new IP.
+If none of this works, try this on another network and restart your server to have your new IP.
 
 If it still does not work, you can open a new terminal and use this command to try and find another IP :
 
@@ -453,7 +453,7 @@ If it still does not work, you can open a new terminal and use this command to t
 ifconfig
 ```
 
-Finally, if nothing works, try to used your mobile on Hotspot. You and your attendees must be connected to Hotspot network.  
+Finally, if nothing works, try to use your mobile on Hotspot. You and your attendees must be connected to the hotspot network.  
 There is usually no restriction on those network then it should work.
 
 ### Attendee are disconnect right away
@@ -470,4 +470,4 @@ The system does not allow multiple connect for a given attendee / team name.
 1. Be sure it is not due to their code
 2. Be sure they did not changes any other code that the specified one
 
-If none of this work, make them restore the code to repository state.
+If none of this works, make them restore the code to repository state.

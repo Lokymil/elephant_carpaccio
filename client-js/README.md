@@ -13,7 +13,7 @@ You need to have installed:
 To make it work, you have to change properties in [`src/conf.js`](./src/conf.js) as:
 
 - `host`: IP provided by your workshop leader
-- `name`: your own name, team name or anything that can identify you. Be carful, if you have the same name as someone else in this workshop, your connection will be refused.
+- `name`: your own name, team name or anything that can identify you. Be careful, if you have the same name as someone else in this workshop, your connection will be refused.
 
 ## How can I start the server ?
 
@@ -35,10 +35,10 @@ yarn
 yarn start
 ```
 
-:warning: If it works, stop here until your workshop leader press the "start" button. When the timer has started, you can code.
+:warning: If it works, stop here until your workshop leader presses the "start" button. When the timer has started, you can code.
 
 ## What should I do to earn points ?
 
-To parse a cart properly, you have to change `getInvoiceFromCart` function in [`src/invoice/invoice.js`](./src/invoice/invoice.js) and return the correct invoice value.
+To parse a cart properly, you have to change the `getInvoiceFromCart` function in [`src/invoice/invoice.js`](./src/invoice/invoice.js) and return the correct invoice value.
 
 To know what rules you will have to create, ask your team leader.
