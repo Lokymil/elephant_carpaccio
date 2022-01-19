@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElephantCarpaccioClient", "./ElephantCarpaccioClient/ElephantCarpaccioClient.csproj", "{0E738B53-D5D5-4E55-9D81-59D1604B9768}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E738B53-D5D5-4E55-9D81-59D1604B9768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E738B53-D5D5-4E55-9D81-59D1604B9768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E738B53-D5D5-4E55-9D81-59D1604B9768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E738B53-D5D5-4E55-9D81-59D1604B9768}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
