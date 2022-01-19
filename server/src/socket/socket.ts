@@ -79,7 +79,9 @@ export const initSocket = (server: Server) => {
 
     socket.on("disconnect", (): void => {
       console.log(`${team?.name} disconnected`);
-      team.connected = false;
+      if (team) {
+        team.connected = false;
+      }
     });
   });
 
@@ -125,7 +127,7 @@ export const initSocket = (server: Server) => {
     if (
       teams.some((team) => team.validAnswerInARow >= validAnswerStreakThreshold)
     ) {
-      increaseDifficulty;
+      increaseDifficulty();
       resetValidAnswerStreak(teams);
     }
   };
