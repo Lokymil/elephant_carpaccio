@@ -11,3 +11,8 @@ Check [this](./client-java/README.md) out.
 ## JS
 
 Check [this](./client-js/README.md) out.
+
+
+## C#
+
+Check [this](./client-csharp/README.md) out.
