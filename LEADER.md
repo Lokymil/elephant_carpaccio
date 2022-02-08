@@ -27,11 +27,6 @@ Every time a cart is sent your attendees will :
   - [Monitoring](#monitoring)
 - [End your workshop](#end-your-workshop)
 - [All the rules](#all-the-rules)
-  - [Prices](#prices)
-  - [Quantities](#quantities)
-  - [Country](#country)
-  - [Reduction](#reduction)
-  - [Difficulty](#difficulty)
 - [Customization](#customization)
   - [Basic](#basic)
   - [Advanced](#advanced)
@@ -115,7 +110,7 @@ At this point all your attendees must be connected and from now on you will role
 
 ### Your introduction speech
 
-You are a small e-shopping company. The team in charge of developing shopping cart just deliver their first version. Your team (your attendees) must develop the invoice module that will receive a cart and must return the corresponding invoice (i.e.: `354 €`).  
+You are a small e-shopping company. The team in charge of developing shopping cart just deliver their first version. Your team (your attendees) must develop the invoice module that will receive a cart and must return the corresponding invoice (i.e.: `354.00 €` decimals must be present).  
 Be careful, your clients are extremely picky and will refuse any invoice that is not exactly what they expected. Even a trailing white space will make an invoice invalid.
 
 ### Explain starting rules
@@ -133,14 +128,14 @@ A cart will be emitted every **10 seconds**. The will have the following format 
 
 Your company is still small and you have but few clients. At the beginning, the shopping cart will be small and not very challenging. As time pass and invoice reliability increases, clients will be more numerous and more confident. At the same time, cart dev team will add new features and your company might deploy in a new country. Then the shopping cart will be bigger and more complex.
 
-This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every 10 minutes in a given difficulty, the level increases. It may increase earlier if one invoice module answers 10 valid invoices in a row (streak value in score interface).
+This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every 10 minutes in a given difficulty, the level increases. It may increase earlier if one invoice module (one attendee) answers 10 valid invoices in a row (streak value in score interface).
 
 #### What their module must do
 
 1. calculate total price from `prices` and `quantities`
 2. apply reduction
 3. apply exchange rate, provided prices are in €
-4. return invoice as `final price + white space + currency symbol`
+4. return invoice as `final price with 2 decimals + white space + currency symbol`
 
 #### Possible reductions
 
@@ -158,6 +153,11 @@ In other word, a correct answer grant 100% points, an incorrect answer remove 50
 
 _Notes :_  
 _The point is to force every attendee to keep their program running. A partial service is still better than no service at all. It should make them understand that having quick feedback and trying to make a quick but partial solution is better than an exhaustive but slow solution._
+
+### Avoid cheating
+
+It is extremly important to ask you attendees not to look anywhere else than they are asked to. If they do otherwise, they might see what are the next rules to implement too early and it will make this workshop pointless.  
+Be sure to kindly remind them not to do so for the sake of workshop's relevance.
 
 ### Questions
 
@@ -219,199 +219,7 @@ If all your attendees have fairly the same development level, those who made sma
 
 ## All the rules
 
-### Prices
-
-Any price is between 10 and 100, included.
-
-### Quantities
-
-Any quantity is between 1 and 10, included.
-
-### Country
-
-#### UK
-
-Exchange rate is `1.42`. They must multiply the final price by this rate.
-
-#### US
-
-Exchange rate is `1.314`. They must multiply the final price by this rate.
-
-### Reduction
-
-#### `STANDARD`
-
-There is no reduction
-
-#### `HALF`
-
-Final price must be reduced by 50%.
-
-```
-finalPrice * 0.5
-```
-
-#### `TENTH`
-
-Final price must be reduced by 10%.
-
-```
-finalPrice * 0.9
-```
-
-#### `HALF_FIRST`
-
-Price of the first item must be reduced by 50%.
-
-```
-prices[0] * quantities[0] * 0.5
-```
-
-#### `HALF_LAST`
-
-Price of the last item must be reduced by 50%.
-
-```
-prices[X] * quantities[X] * 0.5
-```
-
-#### `SPECIAL`
-
-Price of the first item must be reduced by 10%.
-Price of the second item must be reduced by 20%.
-Price of the third item must be reduced by 30%.
-Price of the forth item must be reduced by 40%.
-Price of the fifth item must be reduced by 50%.
-Price of the sixth item must be reduced by 50%.
-Price of the seventh item must be reduced by 50%.
-Price of the eighth item must be reduced by 50%.
-Price of the nineth item must be reduced by 50%.
-Price of the tenth item must be reduced by 50%.
-
-```
-prices[0] * quantities[0] * 0.1
-prices[1] * quantities[1] * 0.2
-prices[2] * quantities[2] * 0.3
-prices[3] * quantities[3] * 0.4
-prices[4] * quantities[4] * 0.5
-prices[5] * quantities[5] * 0.5
-prices[6] * quantities[6] * 0.5
-prices[7] * quantities[7] * 0.5
-prices[8] * quantities[8] * 0.5
-prices[9] * quantities[9] * 0.5
-```
-
-### Difficulty
-
-#### Level 0
-
-Number of different item:
-
-- 70% chance of 1 item
-- 20% chance of 2 items
-- 10% chance of 3 items
-
-Max quantity per item:
-
-- `1`
-
-Possible country:
-
-- `FR`
-
-Possible reduction:
-
-- `STANDARD`
-
-#### Level 1
-
-Number of different item:
-
-- 1 to 3
-
-Max quantity per item:
-
-- `5`
-
-Possible country:
-
-- `FR`
-
-Possible reduction:
-
-- `STANDARD` at 60%
-- `HALF` at 20%
-- `TENTH` at 20%
-
-#### Level 2
-
-Number of different item:
-
-- 1 to 3
-
-Max quantity per item:
-
-- `10`
-
-Possible country:
-
-- `FR`
-- `UK`
-
-Possible reduction:
-
-- `STANDARD` at 33.3%
-- `HALF` at 33.3%
-- `TENTH` at 33.3%
-
-#### Level 3
-
-Number of different item:
-
-- 1 to 3
-
-Max quantity per item:
-
-- `10`
-
-Possible country:
-
-- `FR`
-- `UK`
-- `US`
-
-Possible reduction:
-
-- `STANDARD` at 20%
-- `HALF` at 20%
-- `TENTH` at 20%
-- `HALF_FIRST` at 20%
-- `HALF_LAST` at 20%
-
-#### Level 4
-
-Number of different item:
-
-- 3 to 6
-
-Max quantity per item:
-
-- `10`
-
-Possible country:
-
-- `FR`
-- `UK`
-- `US`
-
-Possible reduction:
-
-- `STANDARD` at 12.5%
-- `HALF` at 12.5%
-- `TENTH` at 12.5%
-- `HALF_FIRST` at 12.5%
-- `HALF_LAST` at 12.5%
-- `SPECIAL` at 37.5%
+You can check all the rules in this file [./RULES.md](./RULES.md)
 
 ---
 
