@@ -31,7 +31,7 @@ describe("general cases", () => {
 
     const expectedPrice = 20 + 50 + 500;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+    expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
   });
 
   it(`should
@@ -52,7 +52,9 @@ describe("general cases", () => {
     const expectedPrice =
       (20 * 0.9 + 50 * 0.8 + 500 * 0.7) * countryMapping.UK.factor;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} ${countryMapping.UK.symbol}`);
+    expect(invoice).toBe(
+      `${expectedPrice.toFixed(2)} ${countryMapping.UK.symbol}`
+    );
   });
 });
 
@@ -64,7 +66,7 @@ describe("with reduction", () => {
 
     const expectedPrice = (20 + 50 + 500) * 0.5;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+    expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
   });
 
   it(`should reduce by 10% when reduction is TENTH`, () => {
@@ -74,7 +76,7 @@ describe("with reduction", () => {
 
     const expectedPrice = (20 + 50 + 500) * 0.9;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+    expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
   });
 
   it(`should reduce by 50% only the first item when reduction is HALF_FIRST`, () => {
@@ -84,7 +86,7 @@ describe("with reduction", () => {
 
     const expectedPrice = 20 * 0.5 + 50 + 500;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+    expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
   });
 
   it(`should reduce by 50% only the first item when reduction is HALF_LAST`, () => {
@@ -94,7 +96,7 @@ describe("with reduction", () => {
 
     const expectedPrice = 20 + 50 + 500 * 0.5;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+    expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
   });
 
   it(`should reduce by 10% first item, 20% second item and so on to a max of 50% 
@@ -107,7 +109,7 @@ describe("with reduction", () => {
 
     const expectedPrice = 20 * 0.9 + 50 * 0.8 + 500 * 0.7;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+    expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
   });
 
   it(`should reduce by 10% first item, 20% second item and so on to a max of 50% 
@@ -126,7 +128,7 @@ describe("with reduction", () => {
     const expectedPrice =
       20 * 0.9 + 50 * 0.8 + 500 * 0.7 + 200 * 0.6 + 300 * 0.5 + 400 * 0.5;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+    expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
   });
 });
 
@@ -138,7 +140,9 @@ describe("with other countries", () => {
 
     const expectedPrice = (20 + 50 + 500) * countryMapping.UK.factor;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} ${countryMapping.UK.symbol}`);
+    expect(invoice).toBe(
+      `${expectedPrice.toFixed(2)} ${countryMapping.UK.symbol}`
+    );
   });
 
   it(`should convert to Dollar and use Dollar symbol when country is US`, () => {
@@ -148,6 +152,8 @@ describe("with other countries", () => {
 
     const expectedPrice = (20 + 50 + 500) * countryMapping.US.factor;
     expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} ${countryMapping.US.symbol}`);
+    expect(invoice).toBe(
+      `${expectedPrice.toFixed(2)} ${countryMapping.US.symbol}`
+    );
   });
 });

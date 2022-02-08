@@ -2,6 +2,8 @@ import { Cart, Reduction } from "../cart/cart.types";
 import { applyConversion, getCountrySymbol } from "../country/country";
 import { Country } from "../country/country.types";
 
+const withDecimal = (price: number): string => price.toFixed(2);
+
 const getFinalInvoiceFromReducedPriceAndCountry = (
   price: number,
   country: Country
@@ -9,7 +11,10 @@ const getFinalInvoiceFromReducedPriceAndCountry = (
   const finalPrice = applyConversion(price, country);
   const countrySymbol = getCountrySymbol(country);
 
-  return { price: finalPrice, invoice: `${finalPrice} ${countrySymbol}` };
+  return {
+    price: finalPrice,
+    invoice: `${withDecimal(finalPrice)} ${countrySymbol}`,
+  };
 };
 
 const getInvoiceGlobalReduction = (
