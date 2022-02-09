@@ -51,3 +51,5 @@ py -B client.py
 To parse a cart properly, you have to change the `generate_invoice` function in [`invoice/invoice.py`](./invoice/invoice.py) and return the correct invoice value.
 
 To know what rules you will have to create, ask your team leader.
+
+Finally, to apply your changes, you have to restart your program.

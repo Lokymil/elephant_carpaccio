@@ -42,3 +42,5 @@ yarn start
 To parse a cart properly, you have to change the `getInvoiceFromCart` function in [`src/invoice/invoice.js`](./src/invoice/invoice.js) and return the correct invoice value.
 
 To know what rules you will have to create, ask your team leader.
+
+Finally, to apply your changes, you have to restart your program.
