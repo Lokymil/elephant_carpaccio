@@ -199,9 +199,12 @@ export const initSocket = (server: Server) => {
     startingDifficultyTimestamp = new Date().getTime();
 
     /**
-     * Send cart and check for team that has not answered
+     * Send cart, check difficulty auto-update and check for team that has not answered
      */
     const cartSenderInterval = setInterval(() => {
+      if (getRemainingDifficultyTime() <= 0) {
+        increaseDifficulty();
+      }
       removePointsFromNotAnsweringTeams();
       const { cart, price, invoice } = generateCart(difficulty);
       currentPrice = price;
@@ -210,16 +213,11 @@ export const initSocket = (server: Server) => {
       io.of("/team").emit("cart", cart);
     }, cartRate);
 
-    const difficultyAutoIncrease = setInterval(() => {
-      increaseDifficulty();
-    }, difficultyMaxDuration);
-
     /**
      * Stop sending carts after one hour
      */
     setTimeout(() => {
       clearInterval(cartSenderInterval);
-      clearInterval(difficultyAutoIncrease);
       isStarted = false;
       difficulty = startDifficulty;
       startingTimestamp = 0;
