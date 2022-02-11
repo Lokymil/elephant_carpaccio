@@ -71,6 +71,8 @@ export const initSocket = (server: Server) => {
       if (team.connected) {
         console.log(`${teamName} tried to connect twice`);
         socket.disconnect(true);
+        // Team must stay connected
+        team.connected = true;
       } else {
         team.connected = true;
         console.log(`${teamName} connected`);
@@ -182,8 +184,14 @@ export const initSocket = (server: Server) => {
   const startSendingCarts = (): void => {
     console.log(`
     ----------------------
-    Start sending cart for 1 hour
+    Start sending cart for ${totalDuration / 60000} minutes with 1 cart per ${
+      cartRate / 1000
+    } seconds
+    Invalid answer losing points rate: -${wrongAnswerFactor * 100} %
+    No answer losing points rate: -${noAnswerFactor * 100} %
     Difficulty: ${difficulty}
+    Difficulty auto update: ${totalDuration / (4 * 60000)} minutes
+    Difficulty winstreak update: ${countTeamWithHighStreakThreshold} attendee(s) with ${validAnswerStreakThreshold} valid answers in a row
     ----------------------
     `);
     isStarted = true;
