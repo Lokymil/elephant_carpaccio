@@ -29,3 +29,11 @@ export const resetValidAnswerStreak = (teams: Team[]): void => {
     team.validAnswerInARow = 0;
   });
 };
+
+export const resetWinStreak = (team: Team): void => {
+  team.validAnswerInARow = 0;
+};
+
+export const increaseWinStreak = (team: Team): void => {
+  team.validAnswerInARow += 1;
+};

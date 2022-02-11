@@ -2,7 +2,12 @@ import { Server } from "http";
 import { Server as Socket } from "socket.io";
 import { generateCart } from "../cart/cart";
 import { Invoice } from "../invoice/invoice.types";
-import { getTeam, resetValidAnswerStreak } from "../team/team";
+import {
+  getTeam,
+  increaseWinStreak,
+  resetValidAnswerStreak,
+  resetWinStreak,
+} from "../team/team";
 import { Team } from "../team/team.types";
 import { SocketType } from "./socket.types";
 import {
@@ -12,6 +17,7 @@ import {
   wrongAnswerFactor,
   noAnswerFactor,
   validAnswerStreakThreshold,
+  countTeamWithHighStreakThreshold,
 } from "../conf";
 import { numberOfDifficultyLevel } from "../difficulty/difficulty";
 
@@ -73,7 +79,7 @@ export const initSocket = (server: Server) => {
 
     socket.on("invoice", (invoice) => {
       if (team) {
-        updateFromInvoice(socket, team, invoice);
+        updateTeamFromInvoice(socket, team, invoice);
       }
     });
 
@@ -88,7 +94,7 @@ export const initSocket = (server: Server) => {
   /**
    * Validate invoice and update team and difficulty accordingly
    */
-  const updateFromInvoice = (
+  const updateTeamFromInvoice = (
     socket: SocketType,
     team: Team,
     invoice: Invoice
@@ -97,7 +103,7 @@ export const initSocket = (server: Server) => {
 
     if (invoice === expectedInvoice) {
       team.points += Math.round(currentPrice);
-      team.validAnswerInARow += 1;
+      increaseWinStreak(team);
       socket.emit("invoice", `OK | your points: ${team.points}`);
     } else {
       team.points -= Math.round(currentPrice * wrongAnswerFactor);
@@ -105,7 +111,7 @@ export const initSocket = (server: Server) => {
         "invoice",
         `KO ${expectedInvoice} | your points: ${team.points}`
       );
-      team.validAnswerInARow = 0;
+      resetWinStreak(team);
     }
 
     checkDifficultyIncrease();
@@ -124,9 +130,13 @@ export const initSocket = (server: Server) => {
    * Update difficulty if a team has a long enough win streak
    */
   const checkDifficultyIncrease = () => {
-    if (
-      teams.some((team) => team.validAnswerInARow >= validAnswerStreakThreshold)
-    ) {
+    const countTeamWithHighStreak = teams.reduce((count, team) => {
+      if (team.validAnswerInARow >= validAnswerStreakThreshold) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+    if (countTeamWithHighStreak >= countTeamWithHighStreakThreshold) {
       increaseDifficulty();
       resetValidAnswerStreak(teams);
     }
@@ -139,6 +149,7 @@ export const initSocket = (server: Server) => {
     teams.forEach((team) => {
       if (!team.hasAnswerLast) {
         team.points -= currentPrice * noAnswerFactor;
+        resetWinStreak(team);
       }
       team.hasAnswerLast = false;
     });
@@ -180,13 +191,14 @@ export const initSocket = (server: Server) => {
     startingDifficultyTimestamp = new Date().getTime();
 
     /**
-     *
+     * Send cart and check for team that has not answered
      */
     const cartSenderInterval = setInterval(() => {
       removePointsFromNotAnsweringTeams();
       const { cart, price, invoice } = generateCart(difficulty);
       currentPrice = price;
       expectedInvoice = invoice;
+      console.log("Emitted cart: " + JSON.stringify(cart));
       io.of("/team").emit("cart", cart);
     }, cartRate);
 

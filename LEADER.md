@@ -128,7 +128,13 @@ A cart will be emitted every **10 seconds**. The will have the following format 
 
 Your company is still small and you have but few clients. At the beginning, the shopping cart will be small and not very challenging. As time pass and invoice reliability increases, clients will be more numerous and more confident. At the same time, cart dev team will add new features and your company might deploy in a new country. Then the shopping cart will be bigger and more complex.
 
-This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every 10 minutes in a given difficulty, the level increases. It may increase earlier if one invoice module (one attendee) answers 10 valid invoices in a row (streak value in score interface).
+This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every 10 minutes in a given difficulty, the level increases.  
+It may increases earlier if enough attendees have enough valid answer in a row. The number of attendees to be in win streak and the win streak length before increasing difficulty can be tweaked in `src/conf.ts` file:
+
+- `validAnswerStreakThreshold` for win streak length, default is 10
+- `countTeamWithHighStreakThreshold` for number of attendees to have long enough win streak, default is 1
+
+It is adviced to increase those value if your attendees have huge gap between their experience level.
 
 #### What their module must do
 
@@ -234,7 +240,8 @@ You can adjust a few parameters to match your need or attendees' experience by c
 - `startDifficulty`: difficulty level to start with between 0 (easiest) to 4 (hardest). It is advised to start at 0 or 1.
 - `wrongAnswerFactor`: factor used to calculate how many points to lose if invoice is wrong
 - `noAnswerFactor`: factor used to calculate how many points to lose if no invoice is provided for a given cart
-- `validAnswerStreakThreshold`: number of valid answer in a row required to increase difficulty before auto increase
+- `validAnswerStreakThreshold`: number of valid answer in a row required to increase difficulty earlier than auto increase
+- `countTeamWithHighStreakThreshold`: number of attendees to have enough valid answer in a row to increase difficulty ealier than auto increase
 
 ### Advanced
 
