@@ -41,6 +41,6 @@ public class SocketListener {
 
     // TODO make it a handshake instead of emitting an event
     private void authenticate() {
-        socket.emit("auth", name);
+        socket.emit(AUTH_EVENT, name);
     }
 }
