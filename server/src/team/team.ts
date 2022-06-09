@@ -1,10 +1,10 @@
 import { Team } from "./team.types";
 
-export const generateTeam = (teamName: string): Team => {
+export const generateTeam = (name: string): Team => {
   return {
     hasAnswerLast: false,
     points: 0,
-    name: teamName,
+    name,
     validAnswerInARow: 0,
     connected: false,
   };
