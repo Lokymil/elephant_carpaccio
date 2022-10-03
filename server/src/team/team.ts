@@ -39,7 +39,7 @@ export class Team {
     this.validAnswerInARow = 0;
   };
 
-  updateTeamFromInvoice = (
+  validateInvoice = (
     invoice: Invoice,
     expectedInvoice: Invoice,
     currentPrice: number

@@ -12,6 +12,7 @@ import {
 import DifficultyHandler from "../difficulty/DifficultyHandler";
 import CartHandler from "../cart/CartHandler";
 import gameEvents from "../events/gameEvents";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 const difficultyHandler = new DifficultyHandler(totalDuration);
 const cartHandler = new CartHandler(totalDuration, difficultyHandler);
@@ -19,9 +20,18 @@ const cartHandler = new CartHandler(totalDuration, difficultyHandler);
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
 
-  /**
-   * Setup socket for scoring display
-   */
+  setupScoreSocket(io);
+
+  setupAttendeesSocket(io);
+
+  gameEvents.on("newCart", (cart) => {
+    io.of("/team").emit("cart", cart);
+  });
+};
+
+const setupScoreSocket = (
+  io: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+) => {
   io.of("/scores").on("connection", (socket) => {
     console.log("Scores connected");
 
@@ -44,10 +54,11 @@ export const initSocket = (server: Server) => {
       console.log("Scores disconnected");
     });
   });
+};
 
-  /**
-   * Setup socket for team interaction
-   */
+const setupAttendeesSocket = (
+  io: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+) => {
   io.of("/team").on("connection", (socket) => {
     let team: Team;
 
@@ -68,7 +79,7 @@ export const initSocket = (server: Server) => {
       if (team) {
         socket.emit(
           "invoice",
-          team.updateTeamFromInvoice(
+          team.validateInvoice(
             invoice,
             cartHandler.expectedInvoice,
             cartHandler.expectedPrice
@@ -82,17 +93,14 @@ export const initSocket = (server: Server) => {
       team?.disconnect();
     });
   });
+};
 
-  gameEvents.on("newCart", (cart) => {
-    io.of("/team").emit("cart", cart);
-  });
-
-  gameEvents.on("start", () => {
-    console.log(`
+gameEvents.on("start", () => {
+  console.log(`
     ----------------------
     Start sending cart for ${totalDuration / 60000} minutes with 1 cart per ${
-      cartRate / 1000
-    } seconds
+    cartRate / 1000
+  } seconds
     Invalid answer losing points rate: -${wrongAnswerFactor * 100} %
     No answer losing points rate: -${noAnswerFactor * 100} %
     Difficulty: ${difficultyHandler.currentDifficulty}
@@ -100,14 +108,13 @@ export const initSocket = (server: Server) => {
     Difficulty winstreak update: ${countTeamWithHighStreakThreshold} attendee(s) with ${validAnswerStreakThreshold} valid answers in a row
     ----------------------
     `);
-  });
+});
 
-  gameEvents.on("end", () => {
-    console.log(`
+gameEvents.on("end", () => {
+  console.log(`
     ----------------------
     Stop sending cart !
     Reset difficulty to ${difficultyHandler.currentDifficulty}
     ----------------------
       `);
-  });
-};
+});
