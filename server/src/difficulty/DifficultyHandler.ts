@@ -1,5 +1,10 @@
-import { startDifficulty } from "../conf";
+import {
+  countTeamWithHighStreakThreshold,
+  startDifficulty,
+  validAnswerStreakThreshold,
+} from "../conf";
 import gameEvents from "../events/gameEvents";
+import { Teams } from "../team/team";
 import TimeHandler from "../time/TimeHandler";
 import { numberOfDifficultyLevel } from "./difficulty";
 
@@ -15,6 +20,16 @@ export default class DifficultyHandler extends TimeHandler {
 
     gameEvents.on("start", () => this.start());
     gameEvents.on("end", () => this.end());
+
+    gameEvents.on("newCart", () => {
+      if (
+        Teams.filter(
+          (team) => team.validAnswerInARow >= validAnswerStreakThreshold
+        ).length >= countTeamWithHighStreakThreshold
+      ) {
+        this.#forceUpgrade();
+      }
+    });
   }
 
   start(): void {
@@ -38,10 +53,12 @@ export default class DifficultyHandler extends TimeHandler {
       this.currentDifficulty + 1,
       this.maxDifficulty
     );
+
+    gameEvents.emit("difficultyUpgrade", this.currentDifficulty);
     console.log(`--------> Difficulty updated to ${this.currentDifficulty}`);
   }
 
-  forceUpgrade(): void {
+  #forceUpgrade(): void {
     this.#upgrade();
     if (this.autoUpgrade) {
       clearTimeout(this.autoUpgrade);

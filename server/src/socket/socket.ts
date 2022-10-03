@@ -19,8 +19,6 @@ const cartHandler = new CartHandler(totalDuration, difficultyHandler);
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
 
-  let currentPrice = 0;
-
   /**
    * Setup socket for scoring display
    */
@@ -76,7 +74,6 @@ export const initSocket = (server: Server) => {
             cartHandler.expectedPrice
           )
         );
-        checkDifficultyIncrease();
       }
     });
 
@@ -85,22 +82,6 @@ export const initSocket = (server: Server) => {
       team?.disconnect();
     });
   });
-
-  /**
-   * Update difficulty if a team has a long enough win streak
-   */
-  const checkDifficultyIncrease = () => {
-    const countTeamWithHighStreak = Teams.reduce((count, team) => {
-      if (team.validAnswerInARow >= validAnswerStreakThreshold) {
-        return count + 1;
-      }
-      return count;
-    }, 0);
-    if (countTeamWithHighStreak >= countTeamWithHighStreakThreshold) {
-      difficultyHandler.forceUpgrade();
-      resetValidAnswerStreak();
-    }
-  };
 
   gameEvents.on("newCart", (cart) => {
     io.of("/team").emit("cart", cart);

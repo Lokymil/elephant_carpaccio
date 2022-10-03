@@ -18,6 +18,8 @@ export class Team {
       }
       this.hasAnswerLast = false;
     });
+
+    gameEvents.on("difficultyUpgrade", () => this.resetWinStreak());
   }
 
   resetWinStreak = (): void => {
