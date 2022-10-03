@@ -1,29 +1,33 @@
 import { Server } from "http";
 import { Server as Socket } from "socket.io";
+import events from "events";
 import { generateCart } from "../cart/cart";
 import { Invoice } from "../invoice/invoice.types";
 import { getTeam, resetValidAnswerStreak, Team, Teams } from "../team/team";
 import {
   cartRate,
   totalDuration,
-  startDifficulty,
   wrongAnswerFactor,
   noAnswerFactor,
   validAnswerStreakThreshold,
   countTeamWithHighStreakThreshold,
 } from "../conf";
-import { numberOfDifficultyLevel } from "../difficulty/difficulty";
 import DifficultyHandler from "../difficulty/DifficultyHandler";
+import CartHandler from "../cart/CartHandler";
 
-const difficultyMaxDuration = totalDuration / (numberOfDifficultyLevel - 1);
+const gameEvents = new events.EventEmitter();
+
+const difficultyHandler = new DifficultyHandler(totalDuration, gameEvents);
+const cartHandler = new CartHandler(
+  totalDuration,
+  difficultyHandler,
+  gameEvents
+);
 
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
 
-  let isStarted = false;
-  let expectedInvoice: Invoice;
   let currentPrice = 0;
-  let startingTimestamp: number;
 
   /**
    * Setup socket for scoring display
@@ -34,16 +38,16 @@ export const initSocket = (server: Server) => {
     const teamSender = setInterval(
       () =>
         socket.emit("current", {
-          isStarted,
+          isStarted: cartHandler.isStarted && difficultyHandler.isStarted,
           teams: Teams,
-          difficulty: DifficultyHandler.currentDifficulty,
-          remainingTime: getRemainingTime(),
-          remainingDifficultyTime: DifficultyHandler.getRemainingTime(),
+          difficulty: difficultyHandler.currentDifficulty,
+          remainingTime: cartHandler.getRemainingTime(),
+          remainingDifficultyTime: difficultyHandler.getRemainingTime(),
         }),
       1000
     );
 
-    socket.on("start", startSendingCarts);
+    socket.on("start", () => gameEvents.emit("start"));
 
     socket.on("disconnect", () => {
       clearInterval(teamSender);
@@ -76,8 +80,8 @@ export const initSocket = (server: Server) => {
           "invoice",
           team.updateTeamFromInvoice(
             invoice,
-            expectedInvoice,
-            currentPrice,
+            cartHandler.expectedInvoice,
+            cartHandler.expectedPrice,
             wrongAnswerFactor
           )
         );
@@ -102,7 +106,7 @@ export const initSocket = (server: Server) => {
       return count;
     }, 0);
     if (countTeamWithHighStreak >= countTeamWithHighStreakThreshold) {
-      DifficultyHandler.forceUpgrade();
+      difficultyHandler.forceUpgrade();
       resetValidAnswerStreak();
     }
   };
@@ -120,20 +124,12 @@ export const initSocket = (server: Server) => {
     });
   };
 
-  /**
-   * Compute remaining for total dev time
-   */
-  const getRemainingTime = () => {
-    const now = new Date().getTime();
-    const elapseTime = startingTimestamp ? now - startingTimestamp : 0;
-    return totalDuration - elapseTime;
-  };
+  gameEvents.on("newCart", (cart) => {
+    removePointsFromNotAnsweringTeams();
+    io.of("/team").emit("cart", cart);
+  });
 
-  /**
-   * Trigger scheduler to send cart at given rate
-   * Start timeout to stop after a given delay
-   */
-  const startSendingCarts = (): void => {
+  gameEvents.on("start", () => {
     console.log(`
     ----------------------
     Start sending cart for ${totalDuration / 60000} minutes with 1 cart per ${
@@ -141,43 +137,19 @@ export const initSocket = (server: Server) => {
     } seconds
     Invalid answer losing points rate: -${wrongAnswerFactor * 100} %
     No answer losing points rate: -${noAnswerFactor * 100} %
-    Difficulty: ${DifficultyHandler.currentDifficulty}
+    Difficulty: ${difficultyHandler.currentDifficulty}
     Difficulty auto update: ${totalDuration / (4 * 60000)} minutes
     Difficulty winstreak update: ${countTeamWithHighStreakThreshold} attendee(s) with ${validAnswerStreakThreshold} valid answers in a row
     ----------------------
     `);
-    isStarted = true;
-    startingTimestamp = new Date().getTime();
-    DifficultyHandler.start();
+  });
 
-    /**
-     * Send cart, check difficulty auto-update and check for team that has not answered
-     */
-    const cartSenderInterval = setInterval(() => {
-      removePointsFromNotAnsweringTeams();
-      const { cart, price, invoice } = generateCart(
-        DifficultyHandler.currentDifficulty
-      );
-      currentPrice = price;
-      expectedInvoice = invoice;
-      console.log("Emitted cart: " + JSON.stringify(cart));
-      io.of("/team").emit("cart", cart);
-    }, cartRate);
-
-    /**
-     * Stop sending carts after one hour
-     */
-    setTimeout(() => {
-      clearInterval(cartSenderInterval);
-      isStarted = false;
-      startingTimestamp = 0;
-      DifficultyHandler.end();
-      console.log(`
+  gameEvents.on("end", () => {
+    console.log(`
     ----------------------
     Stop sending cart !
-    Reset difficulty to ${DifficultyHandler.currentDifficulty}
+    Reset difficulty to ${difficultyHandler.currentDifficulty}
     ----------------------
       `);
-    }, totalDuration);
-  };
+  });
 };

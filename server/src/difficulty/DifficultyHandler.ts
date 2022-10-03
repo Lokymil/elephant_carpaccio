@@ -1,16 +1,22 @@
-import { startDifficulty, totalDuration } from "../conf";
+import events from "events";
+import { startDifficulty } from "../conf";
 import TimeHandler from "../time/TimeHandler";
 import { numberOfDifficultyLevel } from "./difficulty";
 
-class DifficultyHandler extends TimeHandler {
+export default class DifficultyHandler extends TimeHandler {
+  gameEvents: events;
   currentDifficulty: number;
   maxDifficulty: number;
   autoUpgrade?: NodeJS.Timeout;
 
-  constructor(totalGameDuration: number) {
+  constructor(totalGameDuration: number, gameEvents: events) {
     super(totalGameDuration / (numberOfDifficultyLevel - 1));
     this.maxDifficulty = numberOfDifficultyLevel - 1;
     this.currentDifficulty = startDifficulty;
+    this.gameEvents = gameEvents;
+
+    gameEvents.on("start", () => this.start());
+    gameEvents.on("end", () => this.end());
   }
 
   start(): void {
@@ -45,5 +51,3 @@ class DifficultyHandler extends TimeHandler {
     this.start();
   }
 }
-
-export default new DifficultyHandler(totalDuration);
