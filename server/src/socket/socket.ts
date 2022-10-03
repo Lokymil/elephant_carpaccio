@@ -1,8 +1,5 @@
 import { Server } from "http";
 import { Server as Socket } from "socket.io";
-import events from "events";
-import { generateCart } from "../cart/cart";
-import { Invoice } from "../invoice/invoice.types";
 import { getTeam, resetValidAnswerStreak, Team, Teams } from "../team/team";
 import {
   cartRate,
@@ -14,15 +11,10 @@ import {
 } from "../conf";
 import DifficultyHandler from "../difficulty/DifficultyHandler";
 import CartHandler from "../cart/CartHandler";
+import gameEvents from "../events/gameEvents";
 
-const gameEvents = new events.EventEmitter();
-
-const difficultyHandler = new DifficultyHandler(totalDuration, gameEvents);
-const cartHandler = new CartHandler(
-  totalDuration,
-  difficultyHandler,
-  gameEvents
-);
+const difficultyHandler = new DifficultyHandler(totalDuration);
+const cartHandler = new CartHandler(totalDuration, difficultyHandler);
 
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
@@ -81,8 +73,7 @@ export const initSocket = (server: Server) => {
           team.updateTeamFromInvoice(
             invoice,
             cartHandler.expectedInvoice,
-            cartHandler.expectedPrice,
-            wrongAnswerFactor
+            cartHandler.expectedPrice
           )
         );
         checkDifficultyIncrease();
@@ -111,21 +102,7 @@ export const initSocket = (server: Server) => {
     }
   };
 
-  /**
-   * Update teams for not answering team
-   */
-  const removePointsFromNotAnsweringTeams = () => {
-    Teams.forEach((team) => {
-      if (!team.hasAnswerLast) {
-        team.points -= currentPrice * noAnswerFactor;
-        team.resetWinStreak();
-      }
-      team.hasAnswerLast = false;
-    });
-  };
-
   gameEvents.on("newCart", (cart) => {
-    removePointsFromNotAnsweringTeams();
     io.of("/team").emit("cart", cart);
   });
 

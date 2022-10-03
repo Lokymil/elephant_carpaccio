@@ -1,25 +1,20 @@
-import events from "events";
 import { cartRate } from "../conf";
 import DifficultyHandler from "../difficulty/DifficultyHandler";
+import gameEvents from "../events/gameEvents";
 import TimeHandler from "../time/TimeHandler";
 import { generateCart } from "./cart";
 
 export default class CartHandler extends TimeHandler {
-  gameEvents: events;
   difficultyHandler: DifficultyHandler;
   cartSender?: NodeJS.Timer;
   gameOverTimeout?: NodeJS.Timeout;
   expectedPrice = 0;
   expectedInvoice = "0.00 €";
 
-  constructor(
-    totalDuration: number,
-    difficultyHandler: DifficultyHandler,
-    gameEvents: events
-  ) {
+  constructor(totalDuration: number, difficultyHandler: DifficultyHandler) {
     super(totalDuration);
     this.difficultyHandler = difficultyHandler;
-    this.gameEvents = gameEvents;
+
     gameEvents.on("start", () => this.start());
   }
 
@@ -38,7 +33,7 @@ export default class CartHandler extends TimeHandler {
       );
       this.expectedPrice = price;
       this.expectedInvoice = invoice;
-      this.gameEvents.emit("newCart", cart);
+      gameEvents.emit("newCart", cart, price, invoice);
       console.log("Emitted cart: " + JSON.stringify(cart));
     }, cartRate);
   }
@@ -56,6 +51,6 @@ export default class CartHandler extends TimeHandler {
       clearTimeout(this.gameOverTimeout);
     }
 
-    this.gameEvents.emit("end");
+    gameEvents.emit("end");
   }
 }

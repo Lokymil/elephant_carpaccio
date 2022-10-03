@@ -1,3 +1,5 @@
+import { noAnswerFactor, wrongAnswerFactor } from "../conf";
+import gameEvents from "../events/gameEvents";
 import { Invoice } from "../invoice/invoice.types";
 
 export class Team {
@@ -9,6 +11,13 @@ export class Team {
 
   constructor(name: string) {
     this.name = name;
+
+    gameEvents.on("newCart", (_, price) => {
+      if (!this.hasAnswerLast) {
+        this.points -= Math.round(price * noAnswerFactor);
+      }
+      this.hasAnswerLast = false;
+    });
   }
 
   resetWinStreak = (): void => {
@@ -31,8 +40,7 @@ export class Team {
   updateTeamFromInvoice = (
     invoice: Invoice,
     expectedInvoice: Invoice,
-    currentPrice: number,
-    wrongAnswerFactor: number
+    currentPrice: number
   ): string => {
     this.hasAnswerLast = true;
 
