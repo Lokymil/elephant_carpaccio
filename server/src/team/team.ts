@@ -1,39 +1,66 @@
-import { Team } from "./team.types";
+import { Invoice } from "../invoice/invoice.types";
 
-export const generateTeam = (teamName: string): Team => {
-  return {
-    hasAnswerLast: false,
-    points: 0,
-    name: teamName,
-    validAnswerInARow: 0,
-    connected: false,
+export class Team {
+  hasAnswerLast = false;
+  points = 0;
+  name: string;
+  validAnswerInARow = 0;
+  connected = false;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  resetWinStreak = (): void => {
+    this.validAnswerInARow = 0;
   };
-};
 
-export const enrichTeams = (teams: Team[], teamName: string): Team => {
-  const newTeam = generateTeam(teamName);
-  teams.push(newTeam);
+  increaseWinStreak = (): void => {
+    this.validAnswerInARow += 1;
+  };
+
+  connect = (): void => {
+    this.connected = true;
+  };
+
+  disconnect = (): void => {
+    this.connected = false;
+  };
+
+  updateTeamFromInvoice = (
+    invoice: Invoice,
+    expectedInvoice: Invoice,
+    currentPrice: number,
+    wrongAnswerFactor: number
+  ): string => {
+    this.hasAnswerLast = true;
+
+    if (invoice === expectedInvoice) {
+      this.points += Math.round(currentPrice);
+      this.increaseWinStreak();
+      return `OK | your points: ${this.points}`;
+    } else {
+      this.points -= Math.round(currentPrice * wrongAnswerFactor);
+      this.resetWinStreak();
+      return `KO ${expectedInvoice} | your points: ${this.points}`;
+    }
+  };
+}
+
+export const Teams: Team[] = [];
+
+export const addTeam = (teamName: string): Team => {
+  const newTeam = new Team(teamName);
+  Teams.push(newTeam);
   return newTeam;
 };
 
-export const getTeam = (teams: Team[], teamName: string): Team => {
-  const currentTeam =
-    teams.find((team) => team.name === teamName) ||
-    enrichTeams(teams, teamName);
-
-  return currentTeam;
+export const getTeam = (teamName: string): Team => {
+  return Teams.find((team) => team.name === teamName) || addTeam(teamName);
 };
 
-export const resetValidAnswerStreak = (teams: Team[]): void => {
-  teams.forEach((team) => {
-    team.validAnswerInARow = 0;
+export const resetValidAnswerStreak = (): void => {
+  Teams.forEach((team) => {
+    team.resetWinStreak();
   });
-};
-
-export const resetWinStreak = (team: Team): void => {
-  team.validAnswerInARow = 0;
-};
-
-export const increaseWinStreak = (team: Team): void => {
-  team.validAnswerInARow += 1;
 };

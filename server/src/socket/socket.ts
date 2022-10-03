@@ -2,14 +2,7 @@ import { Server } from "http";
 import { Server as Socket } from "socket.io";
 import { generateCart } from "../cart/cart";
 import { Invoice } from "../invoice/invoice.types";
-import {
-  getTeam,
-  increaseWinStreak,
-  resetValidAnswerStreak,
-  resetWinStreak,
-} from "../team/team";
-import { Team } from "../team/team.types";
-import { SocketType } from "./socket.types";
+import { getTeam, resetValidAnswerStreak, Team, Teams } from "../team/team";
 import {
   cartRate,
   totalDuration,
@@ -26,7 +19,6 @@ const difficultyMaxDuration = totalDuration / (numberOfDifficultyLevel - 1);
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
 
-  const teams: Team[] = [];
   let isStarted = false;
   let expectedInvoice: Invoice;
   let currentPrice = 0;
@@ -44,7 +36,7 @@ export const initSocket = (server: Server) => {
       () =>
         socket.emit("current", {
           isStarted,
-          teams,
+          teams: Teams,
           difficulty: Math.min(difficulty, numberOfDifficultyLevel - 1),
           remainingTime: getRemainingTime(),
           remainingDifficultyTime: getRemainingDifficultyTime(),
@@ -67,57 +59,38 @@ export const initSocket = (server: Server) => {
     let team: Team;
 
     socket.on("auth", (teamName) => {
-      team = getTeam(teams, teamName);
+      team = getTeam(teamName);
       if (team.connected) {
         console.log(`${teamName} tried to connect twice`);
         socket.disconnect(true);
         // Team must stay connected
-        team.connected = true;
+        team.connect();
       } else {
-        team.connected = true;
+        team.connect();
         console.log(`${teamName} connected`);
       }
     });
 
     socket.on("invoice", (invoice) => {
       if (team) {
-        updateTeamFromInvoice(socket, team, invoice);
+        socket.emit(
+          "invoice",
+          team.updateTeamFromInvoice(
+            invoice,
+            expectedInvoice,
+            currentPrice,
+            wrongAnswerFactor
+          )
+        );
+        checkDifficultyIncrease();
       }
     });
 
     socket.on("disconnect", (): void => {
-      console.log(`${team?.name} disconnected`);
-      if (team) {
-        team.connected = false;
-      }
+      console.log(`${team?.name || "Unknown"} disconnected`);
+      team?.disconnect();
     });
   });
-
-  /**
-   * Validate invoice and update team and difficulty accordingly
-   */
-  const updateTeamFromInvoice = (
-    socket: SocketType,
-    team: Team,
-    invoice: Invoice
-  ): void => {
-    team.hasAnswerLast = true;
-
-    if (invoice === expectedInvoice) {
-      team.points += Math.round(currentPrice);
-      increaseWinStreak(team);
-      socket.emit("invoice", `OK | your points: ${team.points}`);
-    } else {
-      team.points -= Math.round(currentPrice * wrongAnswerFactor);
-      socket.emit(
-        "invoice",
-        `KO ${expectedInvoice} | your points: ${team.points}`
-      );
-      resetWinStreak(team);
-    }
-
-    checkDifficultyIncrease();
-  };
 
   /**
    * Increase difficulty and reset timestamp
@@ -132,7 +105,7 @@ export const initSocket = (server: Server) => {
    * Update difficulty if a team has a long enough win streak
    */
   const checkDifficultyIncrease = () => {
-    const countTeamWithHighStreak = teams.reduce((count, team) => {
+    const countTeamWithHighStreak = Teams.reduce((count, team) => {
       if (team.validAnswerInARow >= validAnswerStreakThreshold) {
         return count + 1;
       }
@@ -140,7 +113,7 @@ export const initSocket = (server: Server) => {
     }, 0);
     if (countTeamWithHighStreak >= countTeamWithHighStreakThreshold) {
       increaseDifficulty();
-      resetValidAnswerStreak(teams);
+      resetValidAnswerStreak();
     }
   };
 
@@ -148,10 +121,10 @@ export const initSocket = (server: Server) => {
    * Update teams for not answering team
    */
   const removePointsFromNotAnsweringTeams = () => {
-    teams.forEach((team) => {
+    Teams.forEach((team) => {
       if (!team.hasAnswerLast) {
         team.points -= currentPrice * noAnswerFactor;
-        resetWinStreak(team);
+        team.resetWinStreak();
       }
       team.hasAnswerLast = false;
     });
