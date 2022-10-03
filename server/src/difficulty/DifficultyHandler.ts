@@ -10,12 +10,12 @@ import { numberOfDifficultyLevel } from "./difficulty";
 
 export default class DifficultyHandler extends TimeHandler {
   currentDifficulty: number;
-  maxDifficulty: number;
-  autoUpgrade?: NodeJS.Timeout;
+  #maxDifficulty: number;
+  #autoUpgrade?: NodeJS.Timeout;
 
   constructor(totalGameDuration: number) {
     super(totalGameDuration / (numberOfDifficultyLevel - 1));
-    this.maxDifficulty = numberOfDifficultyLevel - 1;
+    this.#maxDifficulty = numberOfDifficultyLevel - 1;
     this.currentDifficulty = startDifficulty;
 
     gameEvents.on("start", () => this.start());
@@ -34,7 +34,7 @@ export default class DifficultyHandler extends TimeHandler {
 
   start(): void {
     super.start();
-    this.autoUpgrade = setTimeout(() => {
+    this.#autoUpgrade = setTimeout(() => {
       this.#upgrade();
       this.start();
     }, this.totalDuration);
@@ -42,8 +42,8 @@ export default class DifficultyHandler extends TimeHandler {
 
   end(): void {
     super.end();
-    if (this.autoUpgrade) {
-      clearTimeout(this.autoUpgrade);
+    if (this.#autoUpgrade) {
+      clearTimeout(this.#autoUpgrade);
     }
     this.currentDifficulty = 0;
   }
@@ -51,7 +51,7 @@ export default class DifficultyHandler extends TimeHandler {
   #upgrade(): void {
     this.currentDifficulty = Math.min(
       this.currentDifficulty + 1,
-      this.maxDifficulty
+      this.#maxDifficulty
     );
 
     gameEvents.emit("difficultyUpgrade", this.currentDifficulty);
@@ -60,8 +60,8 @@ export default class DifficultyHandler extends TimeHandler {
 
   #forceUpgrade(): void {
     this.#upgrade();
-    if (this.autoUpgrade) {
-      clearTimeout(this.autoUpgrade);
+    if (this.#autoUpgrade) {
+      clearTimeout(this.#autoUpgrade);
     }
     this.start();
   }

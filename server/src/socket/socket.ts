@@ -1,6 +1,6 @@
 import { Server } from "http";
 import { Server as Socket } from "socket.io";
-import { getTeam, resetValidAnswerStreak, Team, Teams } from "../team/team";
+import { getTeam, Team, Teams } from "../team/team";
 import {
   cartRate,
   totalDuration,
