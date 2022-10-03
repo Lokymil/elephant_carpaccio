@@ -25,6 +25,7 @@ export class Team {
 
   disconnect = (): void => {
     this.connected = false;
+    this.validAnswerInARow = 0;
   };
 
   updateTeamFromInvoice = (
