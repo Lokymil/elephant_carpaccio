@@ -13,6 +13,7 @@ import {
   countTeamWithHighStreakThreshold,
 } from "../conf";
 import { numberOfDifficultyLevel } from "../difficulty/difficulty";
+import DifficultyHandler from "../difficulty/DifficultyHandler";
 
 const difficultyMaxDuration = totalDuration / (numberOfDifficultyLevel - 1);
 
@@ -22,9 +23,7 @@ export const initSocket = (server: Server) => {
   let isStarted = false;
   let expectedInvoice: Invoice;
   let currentPrice = 0;
-  let difficulty = startDifficulty;
   let startingTimestamp: number;
-  let startingDifficultyTimestamp: number;
 
   /**
    * Setup socket for scoring display
@@ -37,9 +36,9 @@ export const initSocket = (server: Server) => {
         socket.emit("current", {
           isStarted,
           teams: Teams,
-          difficulty: Math.min(difficulty, numberOfDifficultyLevel - 1),
+          difficulty: DifficultyHandler.currentDifficulty,
           remainingTime: getRemainingTime(),
-          remainingDifficultyTime: getRemainingDifficultyTime(),
+          remainingDifficultyTime: DifficultyHandler.getRemainingTime(),
         }),
       1000
     );
@@ -93,15 +92,6 @@ export const initSocket = (server: Server) => {
   });
 
   /**
-   * Increase difficulty and reset timestamp
-   */
-  const increaseDifficulty = () => {
-    difficulty++;
-    startingDifficultyTimestamp = new Date().getTime();
-    console.log(`--------> Difficulty updated to ${difficulty}`);
-  };
-
-  /**
    * Update difficulty if a team has a long enough win streak
    */
   const checkDifficultyIncrease = () => {
@@ -112,7 +102,7 @@ export const initSocket = (server: Server) => {
       return count;
     }, 0);
     if (countTeamWithHighStreak >= countTeamWithHighStreakThreshold) {
-      increaseDifficulty();
+      DifficultyHandler.forceUpgrade();
       resetValidAnswerStreak();
     }
   };
@@ -140,17 +130,6 @@ export const initSocket = (server: Server) => {
   };
 
   /**
-   * Compute remaining for total dev time
-   */
-  const getRemainingDifficultyTime = () => {
-    const now = new Date().getTime();
-    const elapseTime = startingDifficultyTimestamp
-      ? now - startingDifficultyTimestamp
-      : 0;
-    return difficultyMaxDuration - elapseTime;
-  };
-
-  /**
    * Trigger scheduler to send cart at given rate
    * Start timeout to stop after a given delay
    */
@@ -162,24 +141,23 @@ export const initSocket = (server: Server) => {
     } seconds
     Invalid answer losing points rate: -${wrongAnswerFactor * 100} %
     No answer losing points rate: -${noAnswerFactor * 100} %
-    Difficulty: ${difficulty}
+    Difficulty: ${DifficultyHandler.currentDifficulty}
     Difficulty auto update: ${totalDuration / (4 * 60000)} minutes
     Difficulty winstreak update: ${countTeamWithHighStreakThreshold} attendee(s) with ${validAnswerStreakThreshold} valid answers in a row
     ----------------------
     `);
     isStarted = true;
     startingTimestamp = new Date().getTime();
-    startingDifficultyTimestamp = new Date().getTime();
+    DifficultyHandler.start();
 
     /**
      * Send cart, check difficulty auto-update and check for team that has not answered
      */
     const cartSenderInterval = setInterval(() => {
-      if (getRemainingDifficultyTime() <= 0) {
-        increaseDifficulty();
-      }
       removePointsFromNotAnsweringTeams();
-      const { cart, price, invoice } = generateCart(difficulty);
+      const { cart, price, invoice } = generateCart(
+        DifficultyHandler.currentDifficulty
+      );
       currentPrice = price;
       expectedInvoice = invoice;
       console.log("Emitted cart: " + JSON.stringify(cart));
@@ -192,14 +170,12 @@ export const initSocket = (server: Server) => {
     setTimeout(() => {
       clearInterval(cartSenderInterval);
       isStarted = false;
-      difficulty = startDifficulty;
       startingTimestamp = 0;
-      startingDifficultyTimestamp = 0;
-
+      DifficultyHandler.end();
       console.log(`
     ----------------------
     Stop sending cart !
-    Reset difficulty to ${difficulty}
+    Reset difficulty to ${DifficultyHandler.currentDifficulty}
     ----------------------
       `);
     }, totalDuration);
