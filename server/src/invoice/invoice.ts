@@ -115,3 +115,15 @@ export const getInvoice = (cart: Cart): { price: number; invoice: string } => {
       return getInvoiceGlobalReduction(cart);
   }
 };
+
+export const isInvoiceValid = (
+  receivedInvoice: string,
+  expectedInvoice: string
+) => {
+  if (!receivedInvoice.match(/^\d+(,|.)\d{2} (\$|£|€)$/i)) {
+    return false;
+  }
+
+  const formattedInvoice = receivedInvoice.replace(",", ".");
+  return formattedInvoice === expectedInvoice;
+};

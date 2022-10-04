@@ -1,5 +1,6 @@
 import { noAnswerFactor, wrongAnswerFactor } from "../conf";
 import gameEvents from "../events/gameEvents";
+import { isInvoiceValid } from "../invoice/invoice";
 import { Invoice } from "../invoice/invoice.types";
 
 export class Team {
@@ -46,7 +47,7 @@ export class Team {
   ): string => {
     this.hasAnswerLast = true;
 
-    if (invoice === expectedInvoice) {
+    if (isInvoiceValid(invoice, expectedInvoice)) {
       this.points += Math.round(currentPrice);
       this.increaseWinStreak();
       return `OK | your points: ${this.points}`;

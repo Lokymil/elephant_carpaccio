@@ -113,6 +113,16 @@ At this point all your attendees must be connected and from now on you will role
 You are a small e-shopping company. The team in charge of developing shopping cart just deliver their first version. Your team (your attendees) must develop the invoice module that will receive a cart and must return the corresponding invoice (i.e.: `354.00 €` decimals must be present).  
 Be careful, your clients are extremely picky and will refuse any invoice that is not exactly what they expected. Even a trailing white space will make an invoice invalid.
 
+The expected invoice must match following rules:
+
+- Start with price
+- Have an integer part matching final price
+- Have a decimal part matching final price
+- Decimal part must always have 2 digits
+- Decimal separator must be either '.' or ','
+- End by currency symbol
+- Have a white space between price and currency
+
 ### Explain starting rules
 
 #### Provided cart

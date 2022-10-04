@@ -1,7 +1,7 @@
 import { Cart, Reduction } from "../cart/cart.types";
 import { countryMapping } from "../country/country";
 import { Country } from "../country/country.types";
-import { getInvoice } from "./invoice";
+import { getInvoice, isInvoiceValid } from "./invoice";
 
 const getCart = ({
   reduction = Reduction.STANDARD,
@@ -155,5 +155,64 @@ describe("with other countries", () => {
     expect(invoice).toBe(
       `${expectedPrice.toFixed(2)} ${countryMapping.US.symbol}`
     );
+  });
+});
+
+describe("isInvoiceValid function", () => {
+  const expectedInvoice = "12.50 €";
+
+  it(`should accept invoice with:
+        - same integer part
+        - '.' as decimal separator
+        - 2 decimal digits
+        - same decimal part
+        - ' ' as currency separator
+        - same currency`, () => {
+    expect(isInvoiceValid("12.50 €", expectedInvoice)).toBe(true);
+  });
+
+  it(`should accept invoice with:
+        - same integer part
+        - ',' as decimal separator
+        - 2 decimal digits
+        - same decimal part
+        - ' ' as currency separator
+        - same currency`, () => {
+    expect(isInvoiceValid("12,50 €", expectedInvoice)).toBe(true);
+  });
+
+  it(`should reject invoice with:
+        - different integer part`, () => {
+    expect(isInvoiceValid("2.50 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - other then '.' or ',' as decimal separator`, () => {
+    expect(isInvoiceValid("12;50 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - less than 2 decimal digits`, () => {
+    expect(isInvoiceValid("12.5 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - more than 2 decimal digits`, () => {
+    expect(isInvoiceValid("12.500 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - different decimal part`, () => {
+    expect(isInvoiceValid("12.40 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - other then ' ' as currency separator`, () => {
+    expect(isInvoiceValid("12.50_€", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - different currency`, () => {
+    expect(isInvoiceValid("12.50 $", expectedInvoice)).toBe(false);
   });
 });
