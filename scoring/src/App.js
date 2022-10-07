@@ -36,7 +36,7 @@ function App() {
   return (
     <div>
       <Header />
-      <Teams teams={teams} />
+      <Teams teams={teams.sort((t1, t2) => t2.points - t1.points)} />
       <GameInfo
         remainingTime={remainingTime}
         difficulty={difficulty}
