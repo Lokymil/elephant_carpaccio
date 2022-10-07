@@ -120,7 +120,7 @@ export const isInvoiceValid = (
   receivedInvoice: string,
   expectedInvoice: string
 ) => {
-  if (!receivedInvoice.match(/^\d+(,|.)\d{2} (\$|£|€)$/i)) {
+  if (!/^\d+(,|.)\d{2} (\$|£|€)$/i.test(receivedInvoice)) {
     return false;
   }
 
