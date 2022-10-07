@@ -1,0 +1,10 @@
+@font-face {
+    font-family: "NotoSansMono";
+    src: url("../../public/assets/font/NotoSansMono-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "NotoSansMono";
+    src: url("../../public/assets/font/NotoSansMono-Bold.ttf") format("truetype");
+    font-weight: bold;
+}

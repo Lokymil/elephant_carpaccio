@@ -1,0 +1,10 @@
+body {
+    --bg-primary: #ffffff;
+    --bg-secondary: #404148;
+
+    --text-primary: #404148;
+    --text-secondary: #ffffff;
+
+    --error-color: #ff4d4d;
+    --success-color: #309d4c;
+}
