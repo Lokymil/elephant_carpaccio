@@ -107,6 +107,7 @@ Wait for every team or attendees to be displayed on this interface before starti
 ## Begin your workshop
 
 At this point all your attendees must be connected and from now on you will role play a Product Owner or a CEO talking to the dev team.
+:warning: From now until you press `Start` (see below), your attendees must not write any code.
 
 ### Your introduction speech
 
@@ -144,14 +145,17 @@ It may increases earlier if enough attendees have enough valid answer in a row. 
 - `validAnswerStreakThreshold` for win streak length, default is 10
 - `countTeamWithHighStreakThreshold` for number of attendees to have long enough win streak, default is 1
 
-It is adviced to increase those value if your attendees have huge gap between their experience level.
+It is adviced to increase those values if
+
+- your attendees have huge gap between their experience level, increasing `validAnswerStreakThreshold` is adviced
+- you have more than 5~6 attendees, adding 1 to `countTeamWithHighStreakThreshold` every 5~6 attendees is adviced (i.e.: 12 attendees = `countTeamWithHighStreakThreshold` set to 3)
 
 #### What their module must do
 
 1. calculate total price from `prices` and `quantities`
 2. apply reduction
 3. apply exchange rate, provided prices are in €
-4. return invoice as `final price with 2 decimals + white space + currency symbol`
+4. return invoice as `final price with 2 decimals + white space + currency symbol` (:warning: final price is not rounded, just truncated)
 
 #### Possible reductions
 
@@ -183,7 +187,7 @@ You must not explain all the rules in the first place. Giving a few rules at the
 
 ### Start
 
-At this point, everyone must have a running invoice module connected to the server (and appears in the scoring interface) and every question must have understood the rules.  
+At this point, everyone must have a running invoice module connected to the server (and appears in the scoring interface) and every attendees must have understood the starting rules.  
 When your attendees are ready, press `start` and allow them to code.
 
 ---
@@ -218,8 +222,8 @@ In the score interface, you will have :
 To motivate your attendees, you can:
 
 - frequently announce current scores as if it was a sports championship
-- make small announcement on difficulty increase (i.e.: "we open a shop in a new country")
-- advice those who stay disconnected to much to stay connected enough if they send wrong answer, they will lose less points
+- make small role played announcement on difficulty increase (i.e.: "we open a shop in a new country", "sell service added a brand new reduction")
+- advice those who stay disconnected to much to stay connected even if they send wrong answer, they will lose less points
 
 ---
 
