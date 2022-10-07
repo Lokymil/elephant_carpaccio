@@ -1,31 +1,5 @@
-.teams {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 2rem;
-}
+@import './fonts.css';
 
-.team {
-  margin-right: 2rem;
-}
-
-.metadata {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 2rem;
-}
-
-.metadata > * {
-  margin-right: 2rem;
-}
-
-.connected {
-  color: green;
-}
-
-.disconnected {
-  color: red;
+body {
+  font-family: 'NotoSansMono';
 }
