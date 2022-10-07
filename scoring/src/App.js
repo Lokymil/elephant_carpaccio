@@ -34,7 +34,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div>
       <Header />
       <Teams teams={teams} />
       <GameInfo
@@ -42,7 +42,9 @@ function App() {
         difficulty={difficulty}
         remainingDifficultyTime={remainingDifficultyTime}
       />
-      {!isStarted && <button onClick={startGame}>Start !</button>}
+      <div className="actions">
+        {!isStarted && <button onClick={startGame}>Start !</button>}
+      </div>
     </div>
   );
 }
