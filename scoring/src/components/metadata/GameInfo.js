@@ -1,15 +1,14 @@
 import Timer from "./Timer";
+import "./GameInfo.css";
+import Difficulty from "./Difficulty";
 
 const GameInfo = ({ remainingTime, difficulty, remainingDifficultyTime }) => {
   return (
     <div className="metadata">
+      <Timer title="Coding end in" remainingTime={remainingTime} />
+      <Difficulty difficulty={difficulty} />
       <Timer
-        title="Remaining time before the end"
-        remainingTime={remainingTime}
-      />
-      <h3>Difficulty level : {difficulty}</h3>
-      <Timer
-        title="Remaining time before difficulty auto-increase"
+        title="Next difficulty in"
         remainingTime={remainingDifficultyTime}
       />
     </div>

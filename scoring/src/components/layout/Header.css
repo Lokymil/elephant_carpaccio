@@ -3,7 +3,3 @@ header {
     background-color: var(--bg-secondary);
     color: var(--text-secondary);
 }
-
-header > h1 {
-    margin: 0;
-}
