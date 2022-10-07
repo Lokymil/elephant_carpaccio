@@ -1,4 +1,5 @@
 import Team from "./Team";
+import "./Teams.css";
 
 const Teams = ({ teams = [] }) => {
   return (

@@ -1,0 +1,28 @@
+.team {
+    border: 1px solid var(--bg-secondary);
+    border-radius: 0.25rem;
+    padding: 1rem;
+}
+
+.team > h2 {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team.connected {
+    border-color: var(--success-color);
+}
+
+.team.connected>h2 {
+    color: var(--success-color);
+}
+
+.team.disconnected {
+    border-color: var(--error-color);
+}
+
+.team.disconnected > h2 {
+    color: var(--error-color);
+}

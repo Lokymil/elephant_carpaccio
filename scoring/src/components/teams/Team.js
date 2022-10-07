@@ -1,3 +1,5 @@
+import "./Team.css";
+
 const Team = ({ team: { name, points, validAnswerInARow, connected } }) => {
   return (
     <div className={`team ${connected ? "connected" : "disconnected"}`}>
