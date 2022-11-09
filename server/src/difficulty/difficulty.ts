@@ -3,10 +3,22 @@ import { Country } from "../country/country.types";
 import { DifficultyStage } from "./difficulty.types";
 
 /**
+ * -----------------------------------------------------
+ *
+ * /!\ STOP RIGHT HERE /!\
+ *
+ * If you are an attendee, you have nothing to do here !
+ *
+ * By reading this file as an attendee, you will make this workshop pointless.
+ * Be kind to your workshop leader and close this file without reading it.
+ *
+ * -----------------------------------------------------
+ */
+
+/**
  * Duplicated values are used to simulate pseudo random chance to get
  * value occuring more often
  */
-// TODO adjust values to make a nice progression curve
 const difficultyStages: DifficultyStage[] = [
   {
     possibleNumberOfItems: [1, 1, 1, 1, 1, 1, 1, 2, 2, 3],

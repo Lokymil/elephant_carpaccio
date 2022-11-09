@@ -1,112 +1,39 @@
 import { Cart, Reduction } from "../cart/cart.types";
-import { applyConversion, getCountrySymbol } from "../country/country";
+import { reductionFactor } from "../cart/reduction";
+import { countryMapping } from "../country/country";
 import { Country } from "../country/country.types";
 
-const getFinalInvoiceFromReducedPriceAndCountry = (
-  price: number,
-  country: Country
+const formatInvoice = (price: number, country: Country): string => {
+  return `${price.toFixed(2)} ${countryMapping[country].symbol}`;
+};
+
+export const getInvoice = ({
+  prices,
+  quantities,
+  country,
+  reduction,
+}: Cart): { price: number; invoice: string } => {
+  const price = prices.reduce((finalPrice, itemPrice, index) => {
+    return (
+      finalPrice +
+      itemPrice *
+        quantities[index] *
+        reductionFactor[reduction](index, prices.length) *
+        countryMapping[country].factor
+    );
+  }, 0);
+
+  return { price, invoice: formatInvoice(price, country) };
+};
+
+export const isInvoiceValid = (
+  receivedInvoice: string,
+  expectedInvoice: string
 ) => {
-  const finalPrice = applyConversion(price, country);
-  const countrySymbol = getCountrySymbol(country);
-
-  return { price: finalPrice, invoice: `${finalPrice} ${countrySymbol}` };
-};
-
-const getInvoiceGlobalReduction = (
-  cart: Cart
-): { price: number; invoice: string } => {
-  const pricePriorReduction = cart.prices.reduce(
-    (finalPrice, itemPrice, index) => {
-      const currentPrice = itemPrice * cart.quantities[index];
-      return finalPrice + currentPrice;
-    },
-    0
-  );
-
-  let pricePriorCountryConversion: number;
-  switch (cart.reduction) {
-    case Reduction.HALF:
-      pricePriorCountryConversion = pricePriorReduction * 0.5;
-      break;
-    case Reduction.TENTH:
-      pricePriorCountryConversion = pricePriorReduction * 0.9;
-      break;
-    default:
-      pricePriorCountryConversion = pricePriorReduction;
+  if (!/^\d+(,|.)\d{2} (\$|£|€)$/i.test(receivedInvoice)) {
+    return false;
   }
 
-  return getFinalInvoiceFromReducedPriceAndCountry(
-    pricePriorCountryConversion,
-    cart.country
-  );
-};
-
-const getInvoiceFirstReduction = (
-  cart: Cart
-): { price: number; invoice: string } => {
-  const pricePriorCountryConversion = cart.prices.reduce(
-    (finalPrice, itemPrice, index) => {
-      const factor = index === 0 ? 0.5 : 1;
-      const currentPrice = itemPrice * cart.quantities[index] * factor;
-      return finalPrice + currentPrice;
-    },
-    0
-  );
-
-  return getFinalInvoiceFromReducedPriceAndCountry(
-    pricePriorCountryConversion,
-    cart.country
-  );
-};
-
-const getInvoiceLastReduction = (
-  cart: Cart
-): { price: number; invoice: string } => {
-  const pricePriorCountryConversion = cart.prices.reduce(
-    (finalPrice, itemPrice, index, arr) => {
-      const factor = index === arr.length - 1 ? 0.5 : 1;
-      const currentPrice = itemPrice * cart.quantities[index] * factor;
-      return finalPrice + currentPrice;
-    },
-    0
-  );
-
-  return getFinalInvoiceFromReducedPriceAndCountry(
-    pricePriorCountryConversion,
-    cart.country
-  );
-};
-
-const getInvoiceSpecialReduction = (
-  cart: Cart
-): { price: number; invoice: string } => {
-  const pricePriorCountryConversion = cart.prices.reduce(
-    (finalPrice, itemPrice, index) => {
-      const factor = Math.max(1 - (index + 1) / 10, 0.5);
-      const currentPrice = itemPrice * cart.quantities[index] * factor;
-      return finalPrice + currentPrice;
-    },
-    0
-  );
-
-  return getFinalInvoiceFromReducedPriceAndCountry(
-    pricePriorCountryConversion,
-    cart.country
-  );
-};
-
-export const getInvoice = (cart: Cart): { price: number; invoice: string } => {
-  switch (cart.reduction) {
-    case Reduction.HALF_FIRST:
-      return getInvoiceFirstReduction(cart);
-    case Reduction.HALF_LAST:
-      return getInvoiceLastReduction(cart);
-    case Reduction.SPECIAL:
-      return getInvoiceSpecialReduction(cart);
-    case Reduction.STANDARD:
-    case Reduction.TENTH:
-    case Reduction.HALF:
-    default:
-      return getInvoiceGlobalReduction(cart);
-  }
+  const formattedInvoice = receivedInvoice.replace(",", ".");
+  return formattedInvoice === expectedInvoice;
 };

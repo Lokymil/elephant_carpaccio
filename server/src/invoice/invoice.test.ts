@@ -1,7 +1,7 @@
 import { Cart, Reduction } from "../cart/cart.types";
 import { countryMapping } from "../country/country";
 import { Country } from "../country/country.types";
-import { getInvoice } from "./invoice";
+import { getInvoice, isInvoiceValid } from "./invoice";
 
 const getCart = ({
   reduction = Reduction.STANDARD,
@@ -16,8 +16,9 @@ const getCart = ({
   country,
 });
 
-describe("general cases", () => {
-  it(`should
+describe("getInvoice function", () => {
+  describe("general cases", () => {
+    it(`should
         - sum multiplied price by corresponding quantities
         - apply no reduction
         - not convert currency
@@ -25,16 +26,16 @@ describe("general cases", () => {
       when
         - reduction is STANDARD
         - country is FR`, () => {
-    const cart: Cart = getCart({});
+      const cart: Cart = getCart({});
 
-    const { price, invoice } = getInvoice(cart);
+      const { price, invoice } = getInvoice(cart);
 
-    const expectedPrice = 20 + 50 + 500;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
-  });
+      const expectedPrice = 20 + 50 + 500;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
+    });
 
-  it(`should
+    it(`should
         - sum multiplied price by corresponding quantities
         - apply reduction
         - convert currency
@@ -42,112 +43,178 @@ describe("general cases", () => {
       when
         - reduction is other than STANDARD
         - country is other than FR`, () => {
-    const cart: Cart = getCart({
-      reduction: Reduction.SPECIAL,
-      country: Country.UK,
+      const cart: Cart = getCart({
+        reduction: Reduction.SPECIAL,
+        country: Country.UK,
+      });
+
+      const { price, invoice } = getInvoice(cart);
+
+      const expectedPrice =
+        (20 * 0.9 + 50 * 0.8 + 500 * 0.7) * countryMapping.UK.factor;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(
+        `${expectedPrice.toFixed(2)} ${countryMapping.UK.symbol}`
+      );
+    });
+  });
+
+  describe("with reduction", () => {
+    it(`should divide by 2 result when reduction is HALF`, () => {
+      const cart: Cart = getCart({ reduction: Reduction.HALF });
+
+      const { price, invoice } = getInvoice(cart);
+
+      const expectedPrice = (20 + 50 + 500) * 0.5;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
     });
 
-    const { price, invoice } = getInvoice(cart);
+    it(`should reduce by 10% when reduction is TENTH`, () => {
+      const cart: Cart = getCart({ reduction: Reduction.TENTH });
 
-    const expectedPrice =
-      (20 * 0.9 + 50 * 0.8 + 500 * 0.7) * countryMapping.UK.factor;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} ${countryMapping.UK.symbol}`);
-  });
-});
+      const { price, invoice } = getInvoice(cart);
 
-describe("with reduction", () => {
-  it(`should divide by 2 result when reduction is HALF`, () => {
-    const cart: Cart = getCart({ reduction: Reduction.HALF });
+      const expectedPrice = (20 + 50 + 500) * 0.9;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
+    });
 
-    const { price, invoice } = getInvoice(cart);
+    it(`should reduce by 50% only the first item when reduction is HALF_FIRST`, () => {
+      const cart: Cart = getCart({ reduction: Reduction.HALF_FIRST });
 
-    const expectedPrice = (20 + 50 + 500) * 0.5;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
-  });
+      const { price, invoice } = getInvoice(cart);
 
-  it(`should reduce by 10% when reduction is TENTH`, () => {
-    const cart: Cart = getCart({ reduction: Reduction.TENTH });
+      const expectedPrice = 20 * 0.5 + 50 + 500;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
+    });
 
-    const { price, invoice } = getInvoice(cart);
+    it(`should reduce by 50% only the first item when reduction is HALF_LAST`, () => {
+      const cart: Cart = getCart({ reduction: Reduction.HALF_LAST });
 
-    const expectedPrice = (20 + 50 + 500) * 0.9;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
-  });
+      const { price, invoice } = getInvoice(cart);
 
-  it(`should reduce by 50% only the first item when reduction is HALF_FIRST`, () => {
-    const cart: Cart = getCart({ reduction: Reduction.HALF_FIRST });
+      const expectedPrice = 20 + 50 + 500 * 0.5;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
+    });
 
-    const { price, invoice } = getInvoice(cart);
-
-    const expectedPrice = 20 * 0.5 + 50 + 500;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
-  });
-
-  it(`should reduce by 50% only the first item when reduction is HALF_LAST`, () => {
-    const cart: Cart = getCart({ reduction: Reduction.HALF_LAST });
-
-    const { price, invoice } = getInvoice(cart);
-
-    const expectedPrice = 20 + 50 + 500 * 0.5;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
-  });
-
-  it(`should reduce by 10% first item, 20% second item and so on to a max of 50% 
+    it(`should reduce by 10% first item, 20% second item and so on to a max of 50% 
       when 
         - reduction is SPECIAL
         - less than 5 items`, () => {
-    const cart: Cart = getCart({ reduction: Reduction.SPECIAL });
+      const cart: Cart = getCart({ reduction: Reduction.SPECIAL });
 
-    const { price, invoice } = getInvoice(cart);
+      const { price, invoice } = getInvoice(cart);
 
-    const expectedPrice = 20 * 0.9 + 50 * 0.8 + 500 * 0.7;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
-  });
+      const expectedPrice = 20 * 0.9 + 50 * 0.8 + 500 * 0.7;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
+    });
 
-  it(`should reduce by 10% first item, 20% second item and so on to a max of 50% 
+    it(`should reduce by 10% first item, 20% second item and so on to a max of 50% 
       when 
         - reduction is SPECIAL 
         - more than 5 items`, () => {
-    const cart: Cart = {
-      prices: [10, 50, 100, 200, 300, 400],
-      quantities: [2, 1, 5, 1, 1, 1],
-      reduction: Reduction.SPECIAL,
-      country: Country.FR,
-    };
+      const cart: Cart = {
+        prices: [10, 50, 100, 200, 300, 400],
+        quantities: [2, 1, 5, 1, 1, 1],
+        reduction: Reduction.SPECIAL,
+        country: Country.FR,
+      };
 
-    const { price, invoice } = getInvoice(cart);
+      const { price, invoice } = getInvoice(cart);
 
-    const expectedPrice =
-      20 * 0.9 + 50 * 0.8 + 500 * 0.7 + 200 * 0.6 + 300 * 0.5 + 400 * 0.5;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} €`);
+      const expectedPrice =
+        20 * 0.9 + 50 * 0.8 + 500 * 0.7 + 200 * 0.6 + 300 * 0.5 + 400 * 0.5;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(`${expectedPrice.toFixed(2)} €`);
+    });
+  });
+
+  describe("with other countries", () => {
+    it(`should convert to Pound and use Pound symbol when country is UK`, () => {
+      const cart: Cart = getCart({ country: Country.UK });
+
+      const { price, invoice } = getInvoice(cart);
+
+      const expectedPrice = (20 + 50 + 500) * countryMapping.UK.factor;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(
+        `${expectedPrice.toFixed(2)} ${countryMapping.UK.symbol}`
+      );
+    });
+
+    it(`should convert to Dollar and use Dollar symbol when country is US`, () => {
+      const cart: Cart = getCart({ country: Country.US });
+
+      const { price, invoice } = getInvoice(cart);
+
+      const expectedPrice = (20 + 50 + 500) * countryMapping.US.factor;
+      expect(price).toBe(expectedPrice);
+      expect(invoice).toBe(
+        `${expectedPrice.toFixed(2)} ${countryMapping.US.symbol}`
+      );
+    });
   });
 });
 
-describe("with other countries", () => {
-  it(`should convert to Pound and use Pound symbol when country is UK`, () => {
-    const cart: Cart = getCart({ country: Country.UK });
+describe("isInvoiceValid function", () => {
+  const expectedInvoice = "12.50 €";
 
-    const { price, invoice } = getInvoice(cart);
-
-    const expectedPrice = (20 + 50 + 500) * countryMapping.UK.factor;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} ${countryMapping.UK.symbol}`);
+  it(`should accept invoice with:
+        - same integer part
+        - '.' as decimal separator
+        - 2 decimal digits
+        - same decimal part
+        - ' ' as currency separator
+        - same currency`, () => {
+    expect(isInvoiceValid("12.50 €", expectedInvoice)).toBe(true);
   });
 
-  it(`should convert to Dollar and use Dollar symbol when country is US`, () => {
-    const cart: Cart = getCart({ country: Country.US });
+  it(`should accept invoice with:
+        - same integer part
+        - ',' as decimal separator
+        - 2 decimal digits
+        - same decimal part
+        - ' ' as currency separator
+        - same currency`, () => {
+    expect(isInvoiceValid("12,50 €", expectedInvoice)).toBe(true);
+  });
 
-    const { price, invoice } = getInvoice(cart);
+  it(`should reject invoice with:
+        - different integer part`, () => {
+    expect(isInvoiceValid("2.50 €", expectedInvoice)).toBe(false);
+  });
 
-    const expectedPrice = (20 + 50 + 500) * countryMapping.US.factor;
-    expect(price).toBe(expectedPrice);
-    expect(invoice).toBe(`${expectedPrice} ${countryMapping.US.symbol}`);
+  it(`should reject invoice with:
+        - other then '.' or ',' as decimal separator`, () => {
+    expect(isInvoiceValid("12;50 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - less than 2 decimal digits`, () => {
+    expect(isInvoiceValid("12.5 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - more than 2 decimal digits`, () => {
+    expect(isInvoiceValid("12.500 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - different decimal part`, () => {
+    expect(isInvoiceValid("12.40 €", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - other then ' ' as currency separator`, () => {
+    expect(isInvoiceValid("12.50_€", expectedInvoice)).toBe(false);
+  });
+
+  it(`should reject invoice with:
+        - different currency`, () => {
+    expect(isInvoiceValid("12.50 $", expectedInvoice)).toBe(false);
   });
 });

@@ -1,31 +1,42 @@
-.teams {
+@import './assets/fonts.css';
+@import './assets/colors.css';
+
+body {
+  margin: 0;
+  font-size: 16px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body * {
+  font-family: 'NotoSansMono';
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+button {
+  border: 2px solid var(--bg-secondary);
+  border-radius: 0.25rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+button:hover{
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+button:active {
+  opacity: 80%;
+}
+
+.actions {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 2rem;
-}
-
-.team {
-  margin-right: 2rem;
-}
-
-.metadata {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 2rem;
-}
-
-.metadata > * {
-  margin-right: 2rem;
-}
-
-.connected {
-  color: green;
-}
-
-.disconnected {
-  color: red;
+  justify-content: center;
 }

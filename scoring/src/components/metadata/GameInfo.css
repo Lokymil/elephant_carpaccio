@@ -1,0 +1,9 @@
+.metadata {
+    display: flex;
+    margin: 1rem;
+}
+
+.metadata > * {
+    margin: 0.5rem;
+    flex: 1;
+}

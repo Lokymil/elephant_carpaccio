@@ -27,3 +27,5 @@ Download Maven dependencies then you can use IntelliJ or Eclipse to start `main`
 To parse a cart properly, you have to change the `getInvoiceFromCart` method in [`invoice/InvoiceGenerator.java`](./src/main/java/fr/arrestier/elephantcarpaccio/invoice/InvoiceGenerator.java) and return the correct invoice value.
 
 To know what rules you will have to create, ask your team leader.
+
+Finally, to apply your changes, you have to restart your program.

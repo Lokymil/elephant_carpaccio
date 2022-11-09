@@ -1,0 +1,10 @@
+.teams {
+    margin: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.teams > * {
+    max-width: 15rem;
+    margin: 0.5rem;
+}

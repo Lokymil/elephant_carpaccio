@@ -1,216 +1,120 @@
 import { Server } from "http";
 import { Server as Socket } from "socket.io";
-import { generateCart } from "../cart/cart";
-import { Invoice } from "../invoice/invoice.types";
-import { getTeam, resetValidAnswerStreak } from "../team/team";
-import { Team } from "../team/team.types";
-import { SocketType } from "./socket.types";
+import { getTeam, Team, Teams } from "../team/team";
 import {
   cartRate,
   totalDuration,
-  startDifficulty,
   wrongAnswerFactor,
   noAnswerFactor,
   validAnswerStreakThreshold,
+  countTeamWithHighStreakThreshold,
 } from "../conf";
-import { numberOfDifficultyLevel } from "../difficulty/difficulty";
+import DifficultyHandler from "../difficulty/DifficultyHandler";
+import CartHandler from "../cart/CartHandler";
+import gameEvents from "../events/gameEvents";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
-const difficultyMaxDuration = totalDuration / (numberOfDifficultyLevel - 1);
+const difficultyHandler = new DifficultyHandler(totalDuration);
+const cartHandler = new CartHandler(totalDuration, difficultyHandler);
 
 export const initSocket = (server: Server) => {
   const io = new Socket(server, { cors: { origin: "*" } });
 
-  const teams: Team[] = [];
-  let isStarted = false;
-  let expectedInvoice: Invoice;
-  let currentPrice = 0;
-  let difficulty = startDifficulty;
-  let startingTimestamp: number;
-  let startingDifficultyTimestamp: number;
+  setupScoreSocket(io);
 
-  /**
-   * Setup socket for scoring display
-   */
+  setupAttendeesSocket(io);
+
+  gameEvents.on("newCart", (cart) => {
+    io.of("/team").emit("cart", cart);
+  });
+};
+
+const setupScoreSocket = (
+  io: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+) => {
   io.of("/scores").on("connection", (socket) => {
     console.log("Scores connected");
 
     const teamSender = setInterval(
       () =>
         socket.emit("current", {
-          isStarted,
-          teams,
-          difficulty: Math.min(difficulty, numberOfDifficultyLevel - 1),
-          remainingTime: getRemainingTime(),
-          remainingDifficultyTime: getRemainingDifficultyTime(),
+          isStarted: cartHandler.isStarted && difficultyHandler.isStarted,
+          teams: Teams,
+          difficulty: difficultyHandler.currentDifficulty,
+          remainingTime: cartHandler.getRemainingTime(),
+          remainingDifficultyTime: difficultyHandler.getRemainingTime(),
         }),
       1000
     );
 
-    socket.on("start", startSendingCarts);
+    socket.on("start", () => gameEvents.emit("start"));
 
     socket.on("disconnect", () => {
       clearInterval(teamSender);
       console.log("Scores disconnected");
     });
   });
+};
 
-  /**
-   * Setup socket for team interaction
-   */
+const setupAttendeesSocket = (
+  io: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+) => {
   io.of("/team").on("connection", (socket) => {
     let team: Team;
 
     socket.on("auth", (teamName) => {
-      team = getTeam(teams, teamName);
+      team = getTeam(teamName);
       if (team.connected) {
         console.log(`${teamName} tried to connect twice`);
         socket.disconnect(true);
+        // Team must stay connected
+        team.connect();
       } else {
-        team.connected = true;
+        team.connect();
         console.log(`${teamName} connected`);
       }
     });
 
     socket.on("invoice", (invoice) => {
       if (team) {
-        updateFromInvoice(socket, team, invoice);
+        socket.emit(
+          "invoice",
+          team.validateInvoice(
+            invoice,
+            cartHandler.expectedInvoice,
+            cartHandler.expectedPrice
+          )
+        );
       }
     });
 
     socket.on("disconnect", (): void => {
-      console.log(`${team?.name} disconnected`);
-      if (team) {
-        team.connected = false;
-      }
+      console.log(`${team?.name || "Unknown"} disconnected`);
+      team?.disconnect();
     });
   });
+};
 
-  /**
-   * Validate invoice and update team and difficulty accordingly
-   */
-  const updateFromInvoice = (
-    socket: SocketType,
-    team: Team,
-    invoice: Invoice
-  ): void => {
-    team.hasAnswerLast = true;
-
-    if (invoice === expectedInvoice) {
-      team.points += Math.round(currentPrice);
-      team.validAnswerInARow += 1;
-      socket.emit("invoice", `OK | your points: ${team.points}`);
-    } else {
-      team.points -= Math.round(currentPrice * wrongAnswerFactor);
-      socket.emit(
-        "invoice",
-        `KO ${expectedInvoice} | your points: ${team.points}`
-      );
-      team.validAnswerInARow = 0;
-    }
-
-    checkDifficultyIncrease();
-  };
-
-  /**
-   * Increase difficulty and reset timestamp
-   */
-  const increaseDifficulty = () => {
-    difficulty++;
-    startingDifficultyTimestamp = new Date().getTime();
-    console.log(`--------> Difficulty updated to ${difficulty}`);
-  };
-
-  /**
-   * Update difficulty if a team has a long enough win streak
-   */
-  const checkDifficultyIncrease = () => {
-    if (
-      teams.some((team) => team.validAnswerInARow >= validAnswerStreakThreshold)
-    ) {
-      increaseDifficulty();
-      resetValidAnswerStreak(teams);
-    }
-  };
-
-  /**
-   * Update teams for not answering team
-   */
-  const removePointsFromNotAnsweringTeams = () => {
-    teams.forEach((team) => {
-      if (!team.hasAnswerLast) {
-        team.points -= currentPrice * noAnswerFactor;
-      }
-      team.hasAnswerLast = false;
-    });
-  };
-
-  /**
-   * Compute remaining for total dev time
-   */
-  const getRemainingTime = () => {
-    const now = new Date().getTime();
-    const elapseTime = startingTimestamp ? now - startingTimestamp : 0;
-    return totalDuration - elapseTime;
-  };
-
-  /**
-   * Compute remaining for total dev time
-   */
-  const getRemainingDifficultyTime = () => {
-    const now = new Date().getTime();
-    const elapseTime = startingDifficultyTimestamp
-      ? now - startingDifficultyTimestamp
-      : 0;
-    return difficultyMaxDuration - elapseTime;
-  };
-
-  /**
-   * Trigger scheduler to send cart at given rate
-   * Start timeout to stop after a given delay
-   */
-  const startSendingCarts = (): void => {
-    console.log(`
+gameEvents.on("start", () => {
+  console.log(`
     ----------------------
-    Start sending cart for 1 hour
-    Difficulty: ${difficulty}
+    Start sending cart for ${totalDuration / 60000} minutes with 1 cart per ${
+    cartRate / 1000
+  } seconds
+    Invalid answer losing points rate: -${wrongAnswerFactor * 100} %
+    No answer losing points rate: -${noAnswerFactor * 100} %
+    Difficulty: ${difficultyHandler.currentDifficulty}
+    Difficulty auto update: ${totalDuration / (4 * 60000)} minutes
+    Difficulty winstreak update: ${countTeamWithHighStreakThreshold} attendee(s) with ${validAnswerStreakThreshold} valid answers in a row
     ----------------------
     `);
-    isStarted = true;
-    startingTimestamp = new Date().getTime();
-    startingDifficultyTimestamp = new Date().getTime();
+});
 
-    /**
-     *
-     */
-    const cartSenderInterval = setInterval(() => {
-      removePointsFromNotAnsweringTeams();
-      const { cart, price, invoice } = generateCart(difficulty);
-      currentPrice = price;
-      expectedInvoice = invoice;
-      io.of("/team").emit("cart", cart);
-    }, cartRate);
-
-    const difficultyAutoIncrease = setInterval(() => {
-      increaseDifficulty();
-    }, difficultyMaxDuration);
-
-    /**
-     * Stop sending carts after one hour
-     */
-    setTimeout(() => {
-      clearInterval(cartSenderInterval);
-      clearInterval(difficultyAutoIncrease);
-      isStarted = false;
-      difficulty = startDifficulty;
-      startingTimestamp = 0;
-      startingDifficultyTimestamp = 0;
-
-      console.log(`
+gameEvents.on("end", () => {
+  console.log(`
     ----------------------
     Stop sending cart !
-    Reset difficulty to ${difficulty}
+    Reset difficulty to ${difficultyHandler.currentDifficulty}
     ----------------------
       `);
-    }, totalDuration);
-  };
-};
+});

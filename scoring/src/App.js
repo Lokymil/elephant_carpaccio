@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { socket } from "./socket";
+import Teams from "./components/teams/Teams";
 import "./App.css";
-import Timer from "./Timer";
-import Team from "./Team";
+import GameInfo from "./components/metadata/GameInfo";
+import Header from "./components/layout/Header";
 
 function App() {
   const [teams, setTeams] = useState([]);
@@ -10,7 +11,6 @@ function App() {
   const [difficulty, setDifficulty] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
   const [remainingDifficultyTime, setRemainingDifficultyTime] = useState(0);
-  useEffect(() => {}, []);
 
   socket.on(
     "current",
@@ -34,25 +34,17 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>Elephant carpaccio</h1>
-      <div className="teams">
-        {teams.map((team) => (
-          <Team key={team.name} team={team} />
-        ))}
+    <div>
+      <Header />
+      <Teams teams={teams.sort((t1, t2) => t2.points - t1.points)} />
+      <GameInfo
+        remainingTime={remainingTime}
+        difficulty={difficulty}
+        remainingDifficultyTime={remainingDifficultyTime}
+      />
+      <div className="actions">
+        {!isStarted && <button onClick={startGame}>Start !</button>}
       </div>
-      <div className="metadata">
-        <Timer
-          title="Remaining time before the end"
-          remainingTime={remainingTime}
-        />
-        <h3>Difficulty level : {difficulty}</h3>
-        <Timer
-          title="Remaining time before difficulty auto-increase"
-          remainingTime={remainingDifficultyTime}
-        />
-      </div>
-      {!isStarted && <button onClick={startGame}>Start !</button>}
     </div>
   );
 }

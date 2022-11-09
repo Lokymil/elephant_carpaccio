@@ -4,3 +4,4 @@ export const startDifficulty = 0; // check difficulty/difficulty.ts file - defau
 export const wrongAnswerFactor = 0.5; // default is 0.5, they will loose half point they should have win with valid answer
 export const noAnswerFactor = 1; // default is 1, they will loose as many point as they should have win with valid answer
 export const validAnswerStreakThreshold = 10; // default is 10
+export const countTeamWithHighStreakThreshold = 1; // default is 1
