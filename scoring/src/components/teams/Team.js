@@ -1,13 +1,13 @@
-import "./Team.css";
+import './Team.css';
 
-const Team = ({ team: { name, points, validAnswerInARow, connected } }) => {
+const Team = ({ team: { name, points, winStreak, connected } }) => {
   return (
-    <div className={`team ${connected ? "connected" : "disconnected"}`}>
+    <div className={`team ${connected ? 'connected' : 'disconnected'}`}>
       <h2>{name}</h2>
       <div>Score : {points}</div>
-      <div>Streak : {validAnswerInARow}</div>
-      <div className={`connection ${connected ? "connected" : "disconnected"}`}>
-        {connected ? "Connected" : "Disconnected"}
+      <div>Streak : {winStreak}</div>
+      <div className={`connection ${connected ? 'connected' : 'disconnected'}`}>
+        {connected ? 'Connected' : 'Disconnected'}
       </div>
     </div>
   );

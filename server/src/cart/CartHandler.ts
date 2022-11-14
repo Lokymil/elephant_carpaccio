@@ -21,13 +21,13 @@ export default class CartHandler extends TimeHandler {
 
   start(): void {
     super.start();
-    this.#emitCart();
+    this.#startEmitCart();
     this.#gameOverTimeout = setTimeout(() => {
       this.end();
     }, this.totalDuration);
   }
 
-  #emitCart(): void {
+  #startEmitCart(): void {
     this.#cartSender = setInterval(() => {
       const { cart, price, invoice } = generateCart(
         this.#difficultyHandler.currentDifficulty

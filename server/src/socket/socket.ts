@@ -1,43 +1,43 @@
-import { Server } from "http";
-import { Server as Socket } from "socket.io";
-import { getTeam, Team, Teams } from "../team/team";
+import { Server } from 'http';
+import { Server as Socket } from 'socket.io';
+import { getTeam, Team, Teams } from '../team/team';
 import {
   cartRate,
   totalDuration,
   wrongAnswerFactor,
   noAnswerFactor,
-  validAnswerStreakThreshold,
+  winStreakThreshold,
   countTeamWithHighStreakThreshold,
-} from "../conf";
-import DifficultyHandler from "../difficulty/DifficultyHandler";
-import CartHandler from "../cart/CartHandler";
-import gameEvents from "../events/gameEvents";
-import { DefaultEventsMap } from "socket.io/dist/typed-events";
+} from '../conf';
+import DifficultyHandler from '../difficulty/DifficultyHandler';
+import CartHandler from '../cart/CartHandler';
+import gameEvents from '../events/gameEvents';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 const difficultyHandler = new DifficultyHandler(totalDuration);
 const cartHandler = new CartHandler(totalDuration, difficultyHandler);
 
 export const initSocket = (server: Server) => {
-  const io = new Socket(server, { cors: { origin: "*" } });
+  const io = new Socket(server, { cors: { origin: '*' } });
 
   setupScoreSocket(io);
 
   setupAttendeesSocket(io);
 
-  gameEvents.on("newCart", (cart) => {
-    io.of("/team").emit("cart", cart);
+  gameEvents.on('newCart', (cart) => {
+    io.of('/team').emit('cart', cart);
   });
 };
 
 const setupScoreSocket = (
   io: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 ) => {
-  io.of("/scores").on("connection", (socket) => {
-    console.log("Scores connected");
+  io.of('/scores').on('connection', (socket) => {
+    console.log('Scores connected');
 
     const teamSender = setInterval(
       () =>
-        socket.emit("current", {
+        socket.emit('current', {
           isStarted: cartHandler.isStarted && difficultyHandler.isStarted,
           teams: Teams,
           difficulty: difficultyHandler.currentDifficulty,
@@ -47,11 +47,11 @@ const setupScoreSocket = (
       1000
     );
 
-    socket.on("start", () => gameEvents.emit("start"));
+    socket.on('start', () => gameEvents.emit('start'));
 
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
       clearInterval(teamSender);
-      console.log("Scores disconnected");
+      console.log('Scores disconnected');
     });
   });
 };
@@ -59,10 +59,10 @@ const setupScoreSocket = (
 const setupAttendeesSocket = (
   io: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 ) => {
-  io.of("/team").on("connection", (socket) => {
+  io.of('/team').on('connection', (socket) => {
     let team: Team;
 
-    socket.on("auth", (teamName) => {
+    socket.on('auth', (teamName) => {
       team = getTeam(teamName);
       if (team.connected) {
         console.log(`${teamName} tried to connect twice`);
@@ -75,10 +75,10 @@ const setupAttendeesSocket = (
       }
     });
 
-    socket.on("invoice", (invoice) => {
+    socket.on('invoice', (invoice) => {
       if (team) {
         socket.emit(
-          "invoice",
+          'invoice',
           team.validateInvoice(
             invoice,
             cartHandler.expectedInvoice,
@@ -88,14 +88,14 @@ const setupAttendeesSocket = (
       }
     });
 
-    socket.on("disconnect", (): void => {
-      console.log(`${team?.name || "Unknown"} disconnected`);
+    socket.on('disconnect', (): void => {
+      console.log(`${team?.name || 'Unknown'} disconnected`);
       team?.disconnect();
     });
   });
 };
 
-gameEvents.on("start", () => {
+gameEvents.on('start', () => {
   console.log(`
     ----------------------
     Start sending cart for ${totalDuration / 60000} minutes with 1 cart per ${
@@ -105,12 +105,12 @@ gameEvents.on("start", () => {
     No answer losing points rate: -${noAnswerFactor * 100} %
     Difficulty: ${difficultyHandler.currentDifficulty}
     Difficulty auto update: ${totalDuration / (4 * 60000)} minutes
-    Difficulty winstreak update: ${countTeamWithHighStreakThreshold} attendee(s) with ${validAnswerStreakThreshold} valid answers in a row
+    Difficulty winstreak update: ${countTeamWithHighStreakThreshold} attendee(s) with ${winStreakThreshold} valid answers in a row
     ----------------------
     `);
 });
 
-gameEvents.on("end", () => {
+gameEvents.on('end', () => {
   console.log(`
     ----------------------
     Stop sending cart !
