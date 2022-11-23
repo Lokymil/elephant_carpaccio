@@ -9,6 +9,7 @@ export class Team {
   hasAnswerLast = true;
   points = 0;
   name: string;
+  totalWins = 0;
   winStreak = 0;
   connected = false;
 
@@ -25,6 +26,11 @@ export class Team {
 
     gameEvents.on('difficultyUpgrade', () => this.resetWinStreak());
   }
+
+  increaseTotalNbrOfWins = (): void => {
+    this.totalWins += 1;
+    this.increaseWinStreak();
+  };
 
   resetWinStreak = (): void => {
     this.winStreak = 0;
@@ -52,7 +58,7 @@ export class Team {
 
     if (isInvoiceValid(invoice, expectedInvoice)) {
       this.points += Math.round(expectedPrice);
-      this.increaseWinStreak();
+      this.increaseTotalNbrOfWins();
       return `OK | your points: ${this.points}`;
     } else {
       this.points -= Math.round(expectedPrice * wrongAnswerFactor);
