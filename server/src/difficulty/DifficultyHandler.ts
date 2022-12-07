@@ -1,12 +1,12 @@
 import {
   countTeamWithHighStreakThreshold,
   startDifficulty,
-  validAnswerStreakThreshold,
-} from "../conf";
-import gameEvents from "../events/gameEvents";
-import { Teams } from "../team/team";
-import TimeHandler from "../time/TimeHandler";
-import { numberOfDifficultyLevel } from "./difficulty";
+  winStreakThreshold,
+} from '../conf';
+import gameEvents from '../events/gameEvents';
+import { Teams } from '../team/team';
+import TimeHandler from '../time/TimeHandler';
+import { numberOfDifficultyLevel } from './difficulty';
 
 export default class DifficultyHandler extends TimeHandler {
   currentDifficulty: number;
@@ -18,14 +18,13 @@ export default class DifficultyHandler extends TimeHandler {
     this.#maxDifficulty = numberOfDifficultyLevel - 1;
     this.currentDifficulty = startDifficulty;
 
-    gameEvents.on("start", () => this.start());
-    gameEvents.on("end", () => this.end());
+    gameEvents.on('start', () => this.start());
+    gameEvents.on('end', () => this.end());
 
-    gameEvents.on("newCart", () => {
+    gameEvents.on('newCart', () => {
       if (
-        Teams.filter(
-          (team) => team.validAnswerInARow >= validAnswerStreakThreshold
-        ).length >= countTeamWithHighStreakThreshold
+        Teams.filter((team) => team.winStreak >= winStreakThreshold).length >=
+        countTeamWithHighStreakThreshold
       ) {
         this.#forceUpgrade();
       }
@@ -54,7 +53,7 @@ export default class DifficultyHandler extends TimeHandler {
       this.#maxDifficulty
     );
 
-    gameEvents.emit("difficultyUpgrade", this.currentDifficulty);
+    gameEvents.emit('difficultyUpgrade', this.currentDifficulty);
     console.log(`--------> Difficulty updated to ${this.currentDifficulty}`);
   }
 

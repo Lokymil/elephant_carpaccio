@@ -117,10 +117,10 @@ Be careful, your clients are extremely picky and will refuse any invoice that is
 The expected invoice must match following rules:
 
 - Start with price
-- Have an integer part matching final price
-- Have a decimal part matching final price
-- Decimal part must always have 2 digits
-- Decimal separator must be either '.' or ','
+  - Have an integer part matching final price
+  - Have a decimal part matching final price
+  - Decimal part must always have 2 digits
+  - Decimal separator must be either '.' or ','
 - End by currency symbol
 - Have a white space between price and currency
 
@@ -139,16 +139,19 @@ A cart will be emitted every **10 seconds**. The will have the following format 
 
 Your company is still small and you have but few clients. At the beginning, the shopping cart will be small and not very challenging. As time pass and invoice reliability increases, clients will be more numerous and more confident. At the same time, cart dev team will add new features and your company might deploy in a new country. Then the shopping cart will be bigger and more complex.
 
-This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every 10 minutes in a given difficulty, the level increases.  
-It may increases earlier if enough attendees have enough valid answer in a row. The number of attendees to be in win streak and the win streak length before increasing difficulty can be tweaked in `src/conf.ts` file:
+This complexity is represented by a difficulty level from 0 (easiest) to 4 (hardest). Every X minutes in a given difficulty, the level increases (depending on workshop duration).  
+It may increases earlier if enough attendees have enough valid answer in a row.
 
-- `validAnswerStreakThreshold` for win streak length, default is 10
-- `countTeamWithHighStreakThreshold` for number of attendees to have long enough win streak, default is 1
-
-It is adviced to increase those values if
-
-- your attendees have huge gap between their experience level, increasing `validAnswerStreakThreshold` is adviced
-- you have more than 5~6 attendees, adding 1 to `countTeamWithHighStreakThreshold` every 5~6 attendees is adviced (i.e.: 12 attendees = `countTeamWithHighStreakThreshold` set to 3)
+> _Notes:_  
+> _The number of attendees to be in win streak and the win streak length before increasing difficulty can be weaked in `server/src/conf.ts` file:_
+>
+> - _`winStreakThreshold` for win streak length, default is 10_
+> - _`countTeamWithHighStreakThreshold` for number of attendees to have long enough win streak, default is 1_
+>
+> _It is adviced to increase those values if_
+>
+> - _your attendees have huge gap between their experience level, increasing `winStreakThreshold` is adviced_
+> - _you have more than 5~6 attendees, adding 1 to `countTeamWithHighStreakThreshold` every 5~6 attendees is adviced (i.e.: 12 attendees = `countTeamWithHighStreakThreshold` set to 3)_
 
 #### What their module must do
 
@@ -163,16 +166,34 @@ It is adviced to increase those values if
 - `HALF` : price is reduced by 50%
 - `TENTH` : price is reduced by 10%
 
+#### Possible country
+
+- `FR` : currency is `€`
+- `UK` : currency is `£`, mind the exchange rate !
+
+> _Notes:_  
+> _Oh silly you ! You forgot to tell them what the exchange rate was._  
+> _This "on purpose" error will be a bit frustrating for your attendees, but the point is to make them rush into a coding a solution they think smart without questionning their own assumptions._
+>
+> _What we would have expect from them is to call you, their PO, to ask you what the exchange rate is before doing anything on this topic. But they will most likely try get it online and find out that it does not work, thinking it comes from their implementation._  
+> _Then be careful not to let them try fixing something that is not broken for too long._
+
+> _Notes:_  
+> _Providing too much rules is at the beginning (country appears only at difficulty 2) is important to ensure some of your attendees will try to implements everything at once, instead of a "try and learn" approch._  
+> _By doing so we increase the number of feedback we will have at the end to debrief with._
+
 #### Scoring
 
 - For every correct invoice, the client pays the price and you win as much money as the invoice's price (you win as many points).
-- For every incorrect invoice, the client calls the client's service and asks for a refund of half the price. Then you lose as much money as half invoice's price (you loose as much points).
-- For every shopping cart you do not generate an invoice, the client does not have to pay, then you lose as much money as the invoice's price (you lose as many points).
+- For every incorrect invoice, the client calls the client's service and asks for a refund of half the price. Then you lose as much money as half invoice's price (you lose as much points).
+- For every shopping cart you do not generate an invoice for, the client does not have to pay, then you lose as much money as the invoice's price (you lose as many points).
 
 In other word, a correct answer grant 100% points, an incorrect answer remove 50% points and no answer at all remove 100%.
 
-_Notes :_  
-_The point is to force every attendee to keep their program running. A partial service is still better than no service at all. It should make them understand that having quick feedback and trying to make a quick but partial solution is better than an exhaustive but slow solution._
+> _Notes:_  
+> _The point is to force every attendee to keep their program running. A partial service is still better than no service at all. It should help them understand that having quick feedback and trying to make a quick but partial solution is better than an exhaustive but slow solution._
+>
+> _You can customize these value by changing `wrongAnswerFactor` and `noAnswerFactor` in `server/src/conf.ts`._
 
 ### Avoid cheating
 
@@ -188,7 +209,8 @@ You must not explain all the rules in the first place. Giving a few rules at the
 ### Start
 
 At this point, everyone must have a running invoice module connected to the server (and appears in the scoring interface) and every attendees must have understood the starting rules.  
-When your attendees are ready, press `start` and allow them to code.
+When your attendees are ready, press `start` and allow them to code.  
+**Remind them that they must restart their programme for every changes they want to apply.**
 
 ---
 
@@ -198,10 +220,20 @@ From now on, all you have to do is monitor scores and difficulty level, and answ
 
 ### Answering questions
 
-Questions will generally appear at difficulty level 2. Answer only if a question is about something they have seen, never answer if an attendees tries to over-engineer or anticipate what is to come.  
-Try to answer what is strictly necessary and answer only to the one asking. To keep your answer secret you can write on a paper to be sure no one will overhear what you say.
+Questions will generally appear at difficulty level 2. Answer only if a question is about something they have seen, never answer if an attendees tries to over-engineer or anticipate what is to come.
 
-The point is to force them to monitor the impact of each modification to ensure they are doing the right changes. And if it's not, they must ask their Product Owner, you.
+> _Notes:_  
+> _They must name information they want to have an answer. It will force them to generate feedbacks from their code (i.e.: have some logs)_
+>
+> - _ANSWER : "What is reduction HALF_FIRST ?"_
+> - _DO NOT ANSWER : "What are the new reductions ?"_
+
+Try to answer what is strictly necessary and answer only to the one asking.
+
+> _Notes:_  
+> _To keep your answer secret you can write on a paper to be sure no one will overhear what you say._
+
+The point is to force them to monitor the impact of each modification to ensure they are doing the right changes. And if not, they must ask their Product Owner, you.
 
 If you want to make it harder, you can simulate a briefing for every difficulty increase. As a Product Owner, you are requested to a meeting to understand the new rules and achievement of your company. As a consequence, you may not answer any question for the first few minutes of a difficulty level.
 
@@ -214,7 +246,7 @@ In the score interface, you will have :
 - attendees list with:
   - their score
   - their valid answer streak
-  - their connection state (red = disconnected and not answering, green = connection and answering)
+  - their connection state (red = disconnected and not answering, green = connected and answering)
 - time remaining for the end of development time
 - current difficulty
 - time remaining before difficulty auto-increase
@@ -223,7 +255,7 @@ To motivate your attendees, you can:
 
 - frequently announce current scores as if it was a sports championship
 - make small role played announcement on difficulty increase (i.e.: "we open a shop in a new country", "sell service added a brand new reduction")
-- advice those who stay disconnected to much to stay connected even if they send wrong answer, they will lose less points
+- help attendees with lowest score for them not to be too frustrated
 
 ---
 
@@ -254,7 +286,7 @@ You can adjust a few parameters to match your need or attendees' experience by c
 - `startDifficulty`: difficulty level to start with between 0 (easiest) to 4 (hardest). It is advised to start at 0 or 1.
 - `wrongAnswerFactor`: factor used to calculate how many points to lose if invoice is wrong
 - `noAnswerFactor`: factor used to calculate how many points to lose if no invoice is provided for a given cart
-- `validAnswerStreakThreshold`: number of valid answer in a row required to increase difficulty earlier than auto increase
+- `winStreakThreshold`: number of valid answer in a row required to increase difficulty earlier than auto increase
 - `countTeamWithHighStreakThreshold`: number of attendees to have enough valid answer in a row to increase difficulty ealier than auto increase
 
 ### Advanced

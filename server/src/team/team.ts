@@ -1,34 +1,37 @@
-import { noAnswerFactor, wrongAnswerFactor } from "../conf";
-import gameEvents from "../events/gameEvents";
-import { isInvoiceValid } from "../invoice/invoice";
-import { Invoice } from "../invoice/invoice.types";
+import { noAnswerFactor, wrongAnswerFactor } from '../conf';
+import gameEvents from '../events/gameEvents';
+import { isInvoiceValid } from '../invoice/invoice';
+import { Invoice } from '../invoice/invoice.types';
 
 export class Team {
-  hasAnswerLast = false;
+  // Creating a team considering it has answer previous cart allow to avoid
+  // removing points on first cart emitted or if someone connects afterwards
+  hasAnswerLast = true;
   points = 0;
   name: string;
-  validAnswerInARow = 0;
+  winStreak = 0;
   connected = false;
 
   constructor(name: string) {
     this.name = name;
 
-    gameEvents.on("newCart", (_, price) => {
+    gameEvents.on('newCart', (_, price) => {
       if (!this.hasAnswerLast) {
         this.points -= Math.round(price * noAnswerFactor);
+        this.resetWinStreak();
       }
       this.hasAnswerLast = false;
     });
 
-    gameEvents.on("difficultyUpgrade", () => this.resetWinStreak());
+    gameEvents.on('difficultyUpgrade', () => this.resetWinStreak());
   }
 
   resetWinStreak = (): void => {
-    this.validAnswerInARow = 0;
+    this.winStreak = 0;
   };
 
   increaseWinStreak = (): void => {
-    this.validAnswerInARow += 1;
+    this.winStreak += 1;
   };
 
   connect = (): void => {
@@ -37,22 +40,22 @@ export class Team {
 
   disconnect = (): void => {
     this.connected = false;
-    this.validAnswerInARow = 0;
+    this.winStreak = 0;
   };
 
   validateInvoice = (
     invoice: Invoice,
     expectedInvoice: Invoice,
-    currentPrice: number
+    expectedPrice: number
   ): string => {
     this.hasAnswerLast = true;
 
     if (isInvoiceValid(invoice, expectedInvoice)) {
-      this.points += Math.round(currentPrice);
+      this.points += Math.round(expectedPrice);
       this.increaseWinStreak();
       return `OK | your points: ${this.points}`;
     } else {
-      this.points -= Math.round(currentPrice * wrongAnswerFactor);
+      this.points -= Math.round(expectedPrice * wrongAnswerFactor);
       this.resetWinStreak();
       return `KO ${expectedInvoice} | your points: ${this.points}`;
     }
@@ -69,10 +72,4 @@ export const addTeam = (teamName: string): Team => {
 
 export const getTeam = (teamName: string): Team => {
   return Teams.find((team) => team.name === teamName) || addTeam(teamName);
-};
-
-export const resetValidAnswerStreak = (): void => {
-  Teams.forEach((team) => {
-    team.resetWinStreak();
-  });
 };

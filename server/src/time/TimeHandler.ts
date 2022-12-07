@@ -12,12 +12,13 @@ export default class TimeHandler {
     this.startingTimestamp = new Date().getTime();
   }
 
-  getRemainingTime(): number {
+  getElapsedTime(): number {
     const now = new Date().getTime();
-    const elapseTime = this.startingTimestamp
-      ? now - this.startingTimestamp
-      : 0;
-    return this.totalDuration - elapseTime;
+    return this.startingTimestamp ? now - this.startingTimestamp : 0;
+  }
+
+  getRemainingTime(): number {
+    return this.totalDuration - this.getElapsedTime();
   }
 
   end(): void {

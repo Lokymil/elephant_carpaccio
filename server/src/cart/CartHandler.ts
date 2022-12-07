@@ -1,40 +1,44 @@
-import { cartRate } from "../conf";
-import DifficultyHandler from "../difficulty/DifficultyHandler";
-import gameEvents from "../events/gameEvents";
-import TimeHandler from "../time/TimeHandler";
-import { generateCart } from "./cart";
+import { cartRate } from '../conf';
+import DifficultyHandler from '../difficulty/DifficultyHandler';
+import gameEvents from '../events/gameEvents';
+import TimeHandler from '../time/TimeHandler';
+import { formatTime } from '../time/utils';
+import { generateCart } from './cart';
 
 export default class CartHandler extends TimeHandler {
   #difficultyHandler: DifficultyHandler;
   #cartSender?: NodeJS.Timer;
   #gameOverTimeout?: NodeJS.Timeout;
   expectedPrice = 0;
-  expectedInvoice = "0.00 €";
+  expectedInvoice = '0.00 €';
 
   constructor(totalDuration: number, difficultyHandler: DifficultyHandler) {
     super(totalDuration);
     this.#difficultyHandler = difficultyHandler;
 
-    gameEvents.on("start", () => this.start());
+    gameEvents.on('start', () => this.start());
   }
 
   start(): void {
     super.start();
-    this.#emitCart();
+    this.#startEmitCart();
     this.#gameOverTimeout = setTimeout(() => {
       this.end();
     }, this.totalDuration);
   }
 
-  #emitCart(): void {
+  #startEmitCart(): void {
     this.#cartSender = setInterval(() => {
       const { cart, price, invoice } = generateCart(
         this.#difficultyHandler.currentDifficulty
       );
       this.expectedPrice = price;
       this.expectedInvoice = invoice;
-      gameEvents.emit("newCart", cart, price, invoice);
-      console.log("Emitted cart: " + JSON.stringify(cart));
+      gameEvents.emit('newCart', cart, price, invoice);
+      console.log(
+        `[${formatTime(this.getElapsedTime())}] Emitted cart: ` +
+          JSON.stringify(cart)
+      );
     }, cartRate);
   }
 
@@ -51,6 +55,6 @@ export default class CartHandler extends TimeHandler {
       clearTimeout(this.#gameOverTimeout);
     }
 
-    gameEvents.emit("end");
+    gameEvents.emit('end');
   }
 }
