@@ -12,8 +12,13 @@
     "socket.io-client": "^4.5.0",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "run-script-os": "^1.1.6"
+  },
   "scripts": {
-    "start": "PORT=3001 react-scripts start",
+    "start": "run-script-os",
+    "start:default": "PORT=3001 react-scripts start",
+    "start:win32": "SET PORT=3001 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
